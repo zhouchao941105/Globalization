@@ -3,14 +3,40 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "react": "^16.4.1",
-    "react-dom": "^16.4.1",
-    "react-scripts": "1.1.4"
+    "antd": "^3.0.3",
+    "axios": "^0.18.0",
+    "body-parser": "^1.18.3",
+    "express": "^4.16.3",
+    "express-http-proxy": "^1.1.0",
+    "moment": "^2.20.1",
+    "mongoose": "^5.0.13",
+    "prop-types": "^15.6.1",
+    "react": "^15.6.1",
+    "react-dom": "^15.6.1",
+    "react-redux": "^5.0.7",
+    "react-router": "3",
+    "react-router-dom": "^4.2.2",
+    "react-scripts": "1.0.10",
+    "redux": "^4.0.0",
+    "socket.io": "^2.0.4"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test --env=jsdom",
+    "start": "npm run server | react-app-rewired start",
+    "server": "node server/server.js",
+    "startOnly": "react-app-rewired start",
+    "build": "react-app-rewired build",
+    "test": "react-app-rewired test --env=jsdom",
     "eject": "react-scripts eject"
-  }
+  },
+  "devDependencies": {
+    "babel-core": "^6.26.0",
+    "babel-loader": "^7.1.2",
+    "babel-plugin-import": "^1.6.3",
+    "babel-preset-env": "^1.6.0",
+    "clean-webpack-plugin": "^0.1.16",
+    "react-app-rewire-less": "^2.1.0",
+    "react-app-rewired": "^1.4.0",
+    "webpack": "^3.5.5"
+  },
+  "proxy": "http://127.0.0.1:9090/"
 }
