@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
+import {Tabs,Upload,Table,Input,Dropdown,Pagination} from 'antd'
 
 class App extends Component {
   render() {
