@@ -10,7 +10,10 @@ db.once('open', () => {
 })
 var kittySchema = mongoose.Schema({
     name: String,
-    school: String
+    eName:String,
+    module:String,
+    branch:String,
+    state:Boolean
 })
 // kittySchema.methods.speak = function () {
 //     var greet = this.name ? "Meow name is" + this.name : "no Name"
