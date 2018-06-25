@@ -27,15 +27,24 @@ var kitty = mongoose.model('Kitty', kittySchema);
 //     })
 // })
 
-// var instance = new kitty({
-//     name: 'zhouchao',
-//     school: '北京校区'
-// })
+var instance = new kitty({
+    name: '首页',
+    eName: 'Homepage',
+    module:'home',
+    branch:'1.0',
+    state:true
+})
 // // instance.speak();
-// instance.save(function (err, ins) {
-//     if (err) return console.log(err);
-//     // ins.speak();
-// })
+
+kitty.find(function(err,list){
+    if(err) return console.log(err)
+    if(list.length===0){
+        instance.save(function (err, ins) {
+            if (err) return console.log(err);
+        })
+    }
+    
+})
 var app = express();
 var host = '127.0.0.1';
 var port = 9090;
