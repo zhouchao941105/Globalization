@@ -22,7 +22,7 @@
   },
   "scripts": {
     "start": "npm run server | react-app-rewired start",
-    "server": "node server/server.js",
+    "server": "node --experimental-modules server/server.js",
     "startOnly": "react-app-rewired start",
     "build": "react-app-rewired build",
     "test": "react-app-rewired test --env=jsdom",
