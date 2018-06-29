@@ -31,8 +31,16 @@ var instance = new kitty({
 kitty.find(function(err,list){
     if(err) return console.log(err)
     if(list.length===0){
-        instance.save(function (err, ins) {
-            if (err) return console.log(err);
+        // instance.save(function (err, ins) {
+        //     if (err) return console.log(err);
+        // })
+        kitty.create({
+            identifer:'系统首页',
+            name: '首页',
+            eName: 'Homepage',
+            module:'home',
+            branch:'1.0',
+            state:true
         })
     }
     
@@ -47,8 +55,12 @@ fs.readFile(path.join(__dirname,'../../docs/lang.cn.js'),(err,data)=>{
     console.log(i.length);
     console.log(i[0],i[i.length-1]);
     i.forEach((item,idx,arr)=>{
-        console.log(item.split(':')[0],item.split(':')[1]);
+        var temp=item.split(':')
+        // console.log(item.split(':')[0],item.split(':')[1]);
         // arr[idx].replace('\r\n\t','')
+        kitty.create({identifer:temp[0]&&temp[0].trim(),name:temp[1]&&temp[1].trim()},(err,list)=>{
+            err&&console.log(err);
+        })
     })
 
 })
