@@ -3,66 +3,84 @@
 var express = require('express');
 var mongoose = require('mongoose');
 var bodyParser = require('body-parser')
-var fs=require('fs')
-var path=require('path')
+var fs = require('fs')
+var path = require('path')
 mongoose.connect('mongodb://localhost')
 var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'error aaa'));
 db.once('open', () => {
     console.log('ok');
 })
-var kittySchema = mongoose.Schema({
-    identifer:String,
+var transSchema = mongoose.Schema({
+    identifer: String,
     name: String,
-    eName:String,
-    module:String,
-    branch:String,
-    state:Boolean
+    eName: String,
+    module: String,
+    branch: String,
+    state: Boolean
 })
-var kitty = mongoose.model('Kitty', kittySchema);
-var instance = new kitty({
-    identifer:'系统首页',
-    name: '首页',
-    eName: 'Homepage',
-    module:'home',
-    branch:'1.0',
-    state:true
-})
-kitty.find(function(err,list){
-    if(err) return console.log(err)
-    if(list.length===0){
+var trans = mongoose.model('Trans', transSchema);
+// var instance = new trans({
+//     identifer: '系统首页',
+//     name: '首页',
+//     eName: 'Homepage',
+//     module: 'home',
+//     branch: '1.0',
+//     state: true
+// })
+trans.find(function (err, list) {
+    if (err) return console.log(err)
+    if (list.length === 0) {
         // instance.save(function (err, ins) {
         //     if (err) return console.log(err);
         // })
-        kitty.create({
-            identifer:'系统首页',
+        trans.create({
+            identifer: '系统首页',
             name: '首页',
             eName: 'Homepage',
-            module:'home',
-            branch:'1.0',
-            state:true
+            module: 'home',
+            branch: '1.0',
+            state: true
         })
     }
-    
+
 })
 // var json = require(path.join(__dirname,'../../docs/lang.cn.js'))
 // console.log(jaa['导航名称']);
-fs.readFile(path.join(__dirname,'../../docs/lang.cn.js'),(err,data)=>{
-    console.log(err);
-    var res=data.toString('utf-8',13,data.length-28);   
-    // console.log(res);
-    var i=res.split(',')
-    console.log(i.length);
-    console.log(i[0],i[i.length-1]);
-    i.forEach((item,idx,arr)=>{
-        var temp=item.split(':')
-        // console.log(item.split(':')[0],item.split(':')[1]);
-        // arr[idx].replace('\r\n\t','')
-        kitty.create({identifer:temp[0]&&temp[0].trim(),name:temp[1]&&temp[1].trim()},(err,list)=>{
-            err&&console.log(err);
-        })
-    })
+var cnList = []
+var enList = []
+var cnRes = fs.readFileSync(path.join(__dirname, '../../docs/lang.cn.js'))
+// console.log(cnRes.toString('utf-8',13,cnRes.length-28).split(','));
+cnList = cnList.concat(cnRes.toString('utf-8', 13, cnRes.length - 28).split(','))
+// cnList.concat([1,2,3])
+// console.log(err);
+// var res=data   
+// console.log(res);
+// cnList=cnList.concat(res.split(','))
+// console.log(i.length);
+// console.log(i[0],i[i.length-1]);
+// i.forEach((item,idx,arr)=>{
+//     var temp=item.split(':')
+//     // console.log(item.split(':')[0],item.split(':')[1]);
+//     // arr[idx].replace('\r\n\t','')
+//     kitty.create({identifer:temp[0]&&temp[0].trim(),name:temp[1]&&temp[1].trim()},(err,list)=>{
+//         err&&console.log(err);
+//     })
+// })
 
+// })
+
+var enRes = fs.readFileSync(path.join(__dirname, '../../Docs/lang.en.js'))
+enList = enList.concat(enRes.toString('utf-8', 13, enRes.length - 28).split(','))
+cnList.forEach((item, idx) => {
+    var identifer = item.split(':')[0]
+    var name = item.split(':')[1]
+    var eName = enList[idx].split(':')[1]
+    identifer == enList[idx].split(':')[0] && trans.create({
+        identifer,
+        name,
+        eName
+    })
 })
 var proxy = require('express-http-proxy');
 
