@@ -46,7 +46,7 @@ class App extends Component {
         moduleList: data.data
       })
     })
-    this.getData = (branch, module, key) => {
+    this.getData = (branch, module, key, state) => {
       axios.get('/data', { params: { branch, module, key } }).then(data => {
         this.setState({
           list: data.data
