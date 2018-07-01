@@ -1,5 +1,3 @@
-// import jaa from '../../Docs/lang.cn'
-
 var express = require('express');
 var mongoose = require('mongoose');
 var bodyParser = require('body-parser')
@@ -106,35 +104,45 @@ app.get('/moduleList', (req, res) => {
     })
 })
 app.get('/data', function (req, res) {
-    // switch (+req.url.split('?')[1].split('=')[1]) {
-    //     case 0: res.send('hh0'); break;
-    //     case 1: res.send('hh1'); break;
-    //     case 2: res.send('hh2'); break;
-    // }
     var query = req.query
-    trans.find({ module: query.module, branch: query.branch, name: new RegExp('a'.replace(/a/, query.key)) }, function (err, list) {
+    var dbQuery
+    if (query.module || query.branch) {
+        if (query.module) {
+            dbQuery = {
+                module: query.module,
+            }
+        }
+        else {
+            dbQuery = {
+                branch: query.branch,
+            }
+        }
+    } else {
+        if (query.state === true || query.state === false) {
+            dbQuery = {
+                state: query.state,
+                name: new RegExp(query.key)
+            }
+        } else {
+            dbQuery = {
+                name: new RegExp(query.key)
+            }
+        }
+
+    }
+    trans.find(dbQuery, function (err, list) {
         if (err) return console.log(err);
         res.send(list)
     })
 })
-app.post('/create', (req, res) => {
-    trans.collection.insert([req.body], (err, docs) => {
-        if (err) {
-            res.send(err)
-        }
-        console.log(docs);
-        res.send(true)
-    })
-})
-app.get('/delete', function (req, res) {
-    trans.remove({ id: req.query.id }, err => {
-        if (err) {
-            res.send('error')
-        } else {
-            res.send(true)
-        }
-    })
-})
+//Todo
+//生效接口（生效）
+//保存接口（未生效）
+//获取同中文名的情况下，之前的翻译
+//
+//
+//
+//
 app.listen(port, host, function (req, res) {
     console.log(`running at ${port}`);
 })

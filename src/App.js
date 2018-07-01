@@ -34,7 +34,7 @@ const columns = [{
 
 class App extends Component {
 
-  state = { list: [], branchList: [], moduleList: [] }
+  state = { list: [], branchList: [], moduleList: [], selectByBranch: true }
   componentDidMount() {
     axios.get('/branchList').then(data => {
       this.setState({
@@ -46,7 +46,7 @@ class App extends Component {
         moduleList: data.data
       })
     })
-    this.getData = (branch, module, key) => {
+    this.getData = (branch, module, key, state) => {
       axios.get('/data', { params: { branch, module, key } }).then(data => {
         this.setState({
           list: data.data
@@ -54,7 +54,7 @@ class App extends Component {
       })
     }
 
-    this.getData('v1.0', 'home', '')
+    this.getData('v1.0', '', '')
   }
   render() {
     return (
@@ -75,14 +75,14 @@ class App extends Component {
         </div>
         <div>
           <span>筛选：</span>
-          <Radio.Group defaultValue="1">
+          <Radio.Group defaultValue="1" onChange={() => this.setState({ selectByBranch: !this.state.selectByBranch })}>
             <Radio value="1">按版本</Radio>
-            <Select defaultValue='v1.0' style={{ width: 120 }} onSelect={(val) => this.getData(val, 'home', '')}>
+            <Select defaultValue='v1.0' style={{ width: 120 }} onSelect={(val) => this.getData(val, '', '')} disabled={!this.state.selectByBranch}>
               {this.state.branchList.map(item => (<Select.Option value={item}>{item}</Select.Option>))}
             </Select>
             <Radio value="2">按模块</Radio>
             {/* <Dropdown overlay={ModuleList} trigger={['click']}> */}
-            <Select defaultValue='首页' style={{ width: 120 }}>
+            <Select defaultValue='首页' style={{ width: 120 }} onSelect={(val) => this.getData('', val, '')} disabled={this.state.selectByBranch}>
               {this.state.moduleList.map(item => (<Select.Option value={item}>{item}</Select.Option>))}
             </Select>
           </Radio.Group>
