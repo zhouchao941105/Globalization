@@ -112,7 +112,14 @@ app.get('/data', function (req, res) {
     //     case 2: res.send('hh2'); break;
     // }
     var query = req.query
-    trans.find({ module: query.module, branch: query.branch, name: new RegExp('a'.replace(/a/, query.key)) }, function (err, list) {
+    var dbQuery = query.module ? {
+        module: query.module,
+        name: new RegExp('a'.replace(/a/, query.key))
+    } : {
+            branch: query.branch,
+            name: new RegExp('a'.replace(/a/, query.key))
+        }
+    trans.find(dbQuery, function (err, list) {
         if (err) return console.log(err);
         res.send(list)
     })
