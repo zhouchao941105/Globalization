@@ -1,51 +1,61 @@
 import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
-import {Layout,Tabs,Icon,Divider,Upload,Table,Input,Select,Pagination,Radio,Menu,Button,Card} from 'antd'
+import { Layout, Tabs, Icon, Divider, Upload, Table, Input, Select, Pagination, Radio, Menu, Button, Card } from 'antd'
+import axios from 'axios'
 // import { Module } from 'module';
 
 const columns = [{
   title: '中文名',
   dataIndex: 'name',
   key: 'name',
+  width: 300
   // render: text => <a href="javascript:;">{text}</a>,
 }, {
   title: '英文名',
   dataIndex: 'eName',
   key: 'eName',
+  width: 300
+
 }, {
   title: '位置',
   dataIndex: 'module',
   key: 'module',
+  width: 100
+
 }, {
   title: '生效状态',
-  dataIndex:'status',
+  dataIndex: 'status',
   key: 'status',
-  
+  width: 100
+
 }];
 
-const data = [{
-  key: '1',
-  name: 'John Brown',
-  eName: 32,
-  module: 'New York No. 1 Lake Park',
-  status:'true' 
-}, {
-  key: '2',
-  name: 'Jim Green',
-  eName: 42,
-  module: 'London No. 1 Lake Park',
-  status:true
-  
-}, {
-  key: '3',
-  name: 'Joe Black',
-  eName: 32,
-  module: 'Sidney No. 1 Lake Park',
-  status:true
-  
-}];
+
 class App extends Component {
+
+  state = { list: [], branchList: [], moduleList: [] }
+  componentDidMount() {
+    axios.get('/branchList').then(data => {
+      this.setState({
+        branchList: data.data
+      })
+    })
+    axios.get('/moduleList').then(data => {
+      this.setState({
+        moduleList: data.data
+      })
+    })
+    this.getData = (branch, module, key) => {
+      axios.get('/data', { params: { branch, module, key } }).then(data => {
+        this.setState({
+          list: data.data
+        })
+      })
+    }
+
+    this.getData('v1.0', 'home', '')
+  }
   render() {
     return (
       <div className="App">
@@ -67,46 +77,35 @@ class App extends Component {
           <span>筛选：</span>
           <Radio.Group defaultValue="1">
             <Radio value="1">按版本</Radio>
-            <Select defaultValue='1.0' style={{width:120}}>
-              <Select.Option value="1.0">1.0</Select.Option>
-              <Select.Option value="1.1">1.1</Select.Option>
-              <Select.Option value="1.2">1.2</Select.Option>
-              <Select.Option value="1.3">1.3</Select.Option>
-              <Select.Option value="1.4">1.4</Select.Option>
-              
+            <Select defaultValue='v1.0' style={{ width: 120 }} onSelect={(val) => this.getData(val, 'home', '')}>
+              {this.state.branchList.map(item => (<Select.Option value={item}>{item}</Select.Option>))}
             </Select>
             <Radio value="2">按模块</Radio>
             {/* <Dropdown overlay={ModuleList} trigger={['click']}> */}
-            <Select defaultValue='首页' style={{width:120}}> 
-              <Select.Option value="首页">首页</Select.Option>
-              <Select.Option value="招生">招生</Select.Option>
-              <Select.Option value="班级">班级</Select.Option>
-              <Select.Option value="学生">学生</Select.Option>
-              <Select.Option value="日程">日程</Select.Option>
-              
+            <Select defaultValue='首页' style={{ width: 120 }}>
+              {this.state.moduleList.map(item => (<Select.Option value={item}>{item}</Select.Option>))}
             </Select>
-            </Radio.Group>
+          </Radio.Group>
         </div>
-        <div style={{textAlign:'left'}}>
+        <div style={{ textAlign: 'left' }}>
           <span>版本/模块:</span>
           <span>招生</span>
-          <Button style={{float:'right'}}>编辑</Button>
+          <Button style={{ float: 'right' }}>编辑</Button>
         </div>
         <div>
-        <Card
-    
-    style={{ width: 320 }}
-    cover={<img alt="example" src="https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png" />}
-  ></Card>
+          <Card
+            style={{ width: 320 }}
+            cover={<img alt="example" src="https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png" />}
+          ></Card>
         </div>
         <div>
-          <Table dataSource={data} columns={columns}></Table>
+          <Table rowKey="_id" dataSource={this.state.list} columns={columns} pagination={{ position: 'top' }}></Table>
         </div>
         <div>
           <Button>取消</Button>
           <Button>保存</Button>
           <Button>生效</Button>
-          
+
         </div>
       </div>
     );

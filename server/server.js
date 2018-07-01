@@ -17,71 +17,68 @@ var transSchema = mongoose.Schema({
     eName: String,
     module: String,
     branch: String,
-    state: Boolean
+    state: Boolean,
+    location: String
 })
 var trans = mongoose.model('Trans', transSchema);
-// var instance = new trans({
-//     identifer: '系统首页',
-//     name: '首页',
-//     eName: 'Homepage',
-//     module: 'home',
-//     branch: '1.0',
-//     state: true
-// })
 trans.find(function (err, list) {
     if (err) return console.log(err)
     if (list.length === 0) {
         // instance.save(function (err, ins) {
         //     if (err) return console.log(err);
         // })
-        trans.create({
-            identifer: '系统首页',
-            name: '首页',
-            eName: 'Homepage',
-            module: 'home',
-            branch: '1.0',
-            state: true
-        })
+        // trans.create({
+        //     identifer: '系统首页',
+        //     name: '首页',
+        //     eName: 'Homepage',
+        //     module: 'home',
+        //     branch: '1.0',
+        //     state: true
+        // })
+        readFile()
     }
 
 })
 // var json = require(path.join(__dirname,'../../docs/lang.cn.js'))
 // console.log(jaa['导航名称']);
-var cnList = []
-var enList = []
-var cnRes = fs.readFileSync(path.join(__dirname, '../../docs/lang.cn.js'))
-// console.log(cnRes.toString('utf-8',13,cnRes.length-28).split(','));
-cnList = cnList.concat(cnRes.toString('utf-8', 13, cnRes.length - 28).split(','))
-// cnList.concat([1,2,3])
-// console.log(err);
-// var res=data   
-// console.log(res);
-// cnList=cnList.concat(res.split(','))
-// console.log(i.length);
-// console.log(i[0],i[i.length-1]);
-// i.forEach((item,idx,arr)=>{
-//     var temp=item.split(':')
-//     // console.log(item.split(':')[0],item.split(':')[1]);
-//     // arr[idx].replace('\r\n\t','')
-//     kitty.create({identifer:temp[0]&&temp[0].trim(),name:temp[1]&&temp[1].trim()},(err,list)=>{
-//         err&&console.log(err);
-//     })
-// })
+function readFile() {
+    var cnList = []
+    var enList = []
+    var cnRes = fs.readFileSync(path.join(__dirname, '../../Docs/lang.cn.js'))
+    cnList = cnList.concat(cnRes.toString('utf-8', 13, cnRes.length - 28).split(',\r'))
 
-// })
 
-var enRes = fs.readFileSync(path.join(__dirname, '../../Docs/lang.en.js'))
-enList = enList.concat(enRes.toString('utf-8', 13, enRes.length - 28).split(','))
-cnList.forEach((item, idx) => {
-    var identifer = item.split(':')[0]
-    var name = item.split(':')[1]
-    var eName = enList[idx].split(':')[1]
-    identifer == enList[idx].split(':')[0] && trans.create({
-        identifer,
-        name,
-        eName
+    var enRes = fs.readFileSync(path.join(__dirname, '../../Docs/lang.en.js'))
+    enList = enList.concat(enRes.toString('utf-8', 13, enRes.length - 28).split(',\r'))
+    enList.forEach((item, idx) => {
+        var identifer = item.split(':')[0]
+        var eName = item.split(':')[1]
+        if (!enList[idx]) {
+            debugger
+        }
+        var name = cnList[idx].split(':')[1]
+        if (identifer == cnList[idx].split(':')[0]) {
+            trans.create({
+                identifer: identifer.trim(),
+                name,
+                eName,
+                location: 'Docs',
+                module: 'home',
+                branch: 'v1.0'
+            })
+        } else if (cnList.some(unit => unit.split(':')[0] == identifer)) {
+            trans.create({
+                identifer: identifer.trim(),
+                name: cnList.find(unit => unit.split(':')[0] == identifer).split(':')[1],
+                eName,
+                location: 'Docs',
+                module: 'home',
+                branch: 'v1.0'
+            })
+        }
+
     })
-})
+}
 var proxy = require('express-http-proxy');
 
 var app = express();
@@ -98,19 +95,30 @@ app.all('*', function (req, res, next) {
 });
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
-app.get('/get', function (req, res) {
+app.get('/branchList', (req, res) => {
+    trans.distinct('branch').exec((err, data) => {
+        res.send(data)
+    })
+})
+app.get('/moduleList', (req, res) => {
+    trans.distinct('module').exec((err, data) => {
+        res.send(data)
+    })
+})
+app.get('/data', function (req, res) {
     // switch (+req.url.split('?')[1].split('=')[1]) {
     //     case 0: res.send('hh0'); break;
     //     case 1: res.send('hh1'); break;
     //     case 2: res.send('hh2'); break;
     // }
-    kitty.find(function (err, list) {
+    var query = req.query
+    trans.find({ module: query.module, branch: query.branch, name: new RegExp('a'.replace(/a/, query.key)) }, function (err, list) {
         if (err) return console.log(err);
-        res.send(list.filter(item => item.name.indexOf(req.query.type) !== -1))
+        res.send(list)
     })
 })
 app.post('/create', (req, res) => {
-    kitty.collection.insert([req.body], (err, docs) => {
+    trans.collection.insert([req.body], (err, docs) => {
         if (err) {
             res.send(err)
         }
@@ -119,7 +127,7 @@ app.post('/create', (req, res) => {
     })
 })
 app.get('/delete', function (req, res) {
-    kitty.remove({ id: req.query.id }, err => {
+    trans.remove({ id: req.query.id }, err => {
         if (err) {
             res.send('error')
         } else {
