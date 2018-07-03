@@ -1,4 +1,5 @@
-var express = require('express');
+const Koa = require('koa');
+const Router = require('koa-router')()
 var mongoose = require('mongoose');
 var bodyParser = require('body-parser')
 var fs = require('fs')
@@ -79,32 +80,29 @@ function readFile() {
 }
 var proxy = require('express-http-proxy');
 
-var app = express();
+var app = new Koa();
 var host = '127.0.0.1';
 var port = 9090;
+// Router.get('/', async (ctx, next) => {
+//     try {
+//         await next();
+//     } catch (err) {
+//         ctx.response.status = err.statusCode || err.status || 500;
+//         ctx.response.body = {
+//             message: err.message
+//         };
+//     }
+// })
+Router.get('/branchList', async (ctx, next) => {
+    ctx.response.body = await trans.distinct('branch').exec()
+    // next()
 
-app.all('*', function (req, res, next) {
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-    res.header("Access-Control-Allow-Methods", "PUT,POST,GET,DELETE,OPTIONS");
-    res.header("X-Powered-By", ' 3.2.1')
-    res.header("Content-Type", "application/json;charset=utf-8");
-    next();
-});
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json());
-app.get('/branchList', (req, res) => {
-    trans.distinct('branch').exec((err, data) => {
-        res.send(data)
-    })
 })
-app.get('/moduleList', (req, res) => {
-    trans.distinct('module').exec((err, data) => {
-        res.send(data)
-    })
+Router.get('/moduleList', async (ctx, next) => {
+    ctx.response.body = await trans.distinct('module').exec()
 })
-app.get('/data', function (req, res) {
-    var query = req.query
+Router.get('/data', async (ctx, next) => {
+    var query = ctx.request.query
     var dbQuery
     if (query.module || query.branch) {
         if (query.module) {
@@ -130,11 +128,63 @@ app.get('/data', function (req, res) {
         }
 
     }
-    trans.find(dbQuery, function (err, list) {
-        if (err) return console.log(err);
-        res.send(list)
-    })
+    ctx.response.body = await trans.find(dbQuery).exec()
 })
+app
+    .use(Router.routes())
+    .use(Router.allowedMethods());
+// app.all('*', function (req, res, next) {
+//     res.header("Access-Control-Allow-Origin", "*");
+//     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+//     res.header("Access-Control-Allow-Methods", "PUT,POST,GET,DELETE,OPTIONS");
+//     res.header("X-Powered-By", ' 3.2.1')
+//     res.header("Content-Type", "application/json;charset=utf-8");
+//     next();
+// });
+// app.use(bodyParser.urlencoded({ extended: true }));
+// app.use(bodyParser.json());
+// app.get('/branchList', (req, res) => {
+//     trans.distinct('branch').exec((err, data) => {
+//         res.send(data)
+//     })
+// })
+// app.get('/moduleList', (req, res) => {
+//     trans.distinct('module').exec((err, data) => {
+//         res.send(data)
+//     })
+// })
+// app.get('/data', function (req, res) {
+//     var query = req.query
+//     var dbQuery
+//     if (query.module || query.branch) {
+//         if (query.module) {
+//             dbQuery = {
+//                 module: query.module,
+//             }
+//         }
+//         else {
+//             dbQuery = {
+//                 branch: query.branch,
+//             }
+//         }
+//     } else {
+//         if (query.state === true || query.state === false) {
+//             dbQuery = {
+//                 state: query.state,
+//                 name: new RegExp(query.key)
+//             }
+//         } else {
+//             dbQuery = {
+//                 name: new RegExp(query.key)
+//             }
+//         }
+
+//     }
+//     trans.find(dbQuery, function (err, list) {
+//         if (err) return console.log(err);
+//         res.send(list)
+//     })
+// })
 //Todo
 //生效接口（生效）
 //保存接口（未生效）
