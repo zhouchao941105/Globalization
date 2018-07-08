@@ -1,35 +1,11 @@
 import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
-import { Layout, Tabs, Icon, Divider, Upload, Table, Input, Select, Pagination, Radio, Menu, Button, Card } from 'antd'
+import { Layout, Tabs, Icon, Divider, Upload, Input, Select, Pagination, Radio, Menu, Button, Card } from 'antd'
 import axios from 'axios'
-// import { Module } from 'module';
+import MultiTable from './table';
 
-const columns = [{
-  title: '中文名',
-  dataIndex: 'name',
-  key: 'name',
-  width: 300
-  // render: text => <a href="javascript:;">{text}</a>,
-}, {
-  title: '英文名',
-  dataIndex: 'eName',
-  key: 'eName',
-  width: 300
 
-}, {
-  title: '位置',
-  dataIndex: 'module',
-  key: 'module',
-  width: 100
-
-}, {
-  title: '生效状态',
-  dataIndex: 'status',
-  key: 'status',
-  width: 100
-
-}];
 
 
 class App extends Component {
@@ -99,7 +75,7 @@ class App extends Component {
           ></Card>
         </div>
         <div>
-          <Table rowKey="_id" dataSource={this.state.list} columns={columns} pagination={{ position: 'top' }}></Table>
+          <MultiTable list={this.state.list} editable={true} ></MultiTable>
         </div>
         <div>
           <Button>取消</Button>
