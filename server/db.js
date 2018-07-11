@@ -15,7 +15,8 @@ var transSchema = mongoose.Schema({
     module: String,
     branch: String,
     state: Boolean,
-    location: String
+    location: String,
+    history: Array
 })
 var trans = mongoose.model('Trans', transSchema);
 trans.find(function (err, list) {

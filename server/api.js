@@ -14,7 +14,7 @@ let option = {
     //获取双语数据
     getData: async (ctx, next) => {
         var query = ctx.request.query
-        var dbQuery
+        var dbQuery, tempList
         if (query.module || query.branch) {
             if (query.module) {
                 dbQuery = {
@@ -39,7 +39,15 @@ let option = {
             }
 
         }
-        ctx.response.body = await trans.find(dbQuery).exec()
+        tempList = await trans.find(dbQuery).exec()
+        for (var i = 0; i < tempList.length; i++) {
+            var k = await trans.find({ name: tempList[i].name }).exec()
+            tempList[i].history = k.filter((unit, idx) => k.indexOf(unit) === idx).map(unit => unit.eName)
+
+        }
+
+        ctx.response.body = tempList
+
     },
     //Todo
     //生效接口（生效）
