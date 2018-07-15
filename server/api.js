@@ -41,8 +41,11 @@ let option = {
         }
         tempList = await trans.find(dbQuery).exec()
         for (var i = 0; i < tempList.length; i++) {
+            if (i == 7) {
+                debugger
+            }
             var k = await trans.find({ name: tempList[i].name }).exec()
-            tempList[i].history = k.filter((unit, idx) => k.indexOf(unit) === idx).map(unit => unit.eName)
+            tempList[i].history = k.map(unit => unit.eName).filter((unit, idx, arr) => arr.indexOf(unit) === idx)
 
         }
 
