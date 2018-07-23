@@ -41,7 +41,7 @@ let option = {
         }
         tempList = await trans.find(dbQuery).exec()
         for (var i = 0; i < tempList.length; i++) {
-            if (i == 7) {
+            if (i == 5) {
                 debugger
             }
             var k = await trans.find({ name: tempList[i].name }).exec()
