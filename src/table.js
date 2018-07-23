@@ -19,11 +19,10 @@ const columns = [{
     title: '历史翻译',
     dataIndex: 'history',
     key: 'history',
-    render: () => {
-        return <Select>
-            <Select.Option value="1">1</Select.Option>
-            <Select.Option value="2">2</Select.Option>
-
+    width: 300,
+    render: (item) => {
+        return <Select placeholder="Please Select" size="large" defaultActiveFirstOption>
+            {item.map(unit => <Select.Option value={unit}>{unit}</Select.Option>)}
         </Select>
     }
 }, {
