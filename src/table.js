@@ -21,7 +21,7 @@ const columns = [{
     key: 'history',
     width: 300,
     render: (item) => {
-        return <Select placeholder="Please Select" size="large" defaultActiveFirstOption>
+        return <Select placeholder="Please Select" style={{ width: '100%' }} defaultActiveFirstOption>
             {item.map(unit => <Select.Option value={unit}>{unit}</Select.Option>)}
         </Select>
     }
