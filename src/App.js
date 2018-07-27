@@ -54,12 +54,12 @@ class App extends Component {
           <Radio.Group defaultValue="1" onChange={() => this.setState({ selectByBranch: !this.state.selectByBranch })}>
             <Radio value="1">按版本</Radio>
             <Select defaultValue='v1.0' style={{ width: 120 }} onSelect={(val) => this.getData(val, '', '')} disabled={!this.state.selectByBranch}>
-              {this.state.branchList.map(item => (<Select.Option value={item}>{item}</Select.Option>))}
+              {this.state.branchList.map(item => (<Select.Option key={item} value={item}>{item}</Select.Option>))}
             </Select>
             <Radio value="2">按模块</Radio>
             {/* <Dropdown overlay={ModuleList} trigger={['click']}> */}
             <Select defaultValue='首页' style={{ width: 120 }} onSelect={(val) => this.getData('', val, '')} disabled={this.state.selectByBranch}>
-              {this.state.moduleList.map(item => (<Select.Option value={item}>{item}</Select.Option>))}
+              {this.state.moduleList.map(item => (<Select.Option key={item} value={item}>{item}</Select.Option>))}
             </Select>
           </Radio.Group>
         </div>

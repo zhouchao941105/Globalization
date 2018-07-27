@@ -2,19 +2,24 @@ import React from 'react'
 import { Table, Select, Input, Icon } from 'antd'
 
 class MultiTable extends React.Component {
-    state = {
-        list: []
-    }
-    componentDidUpdate() {
-        if (this.props.list.length) {
-            this.setState({
-                list: this.props.list
-            })
+    constructor() {
+        super()
+        this.state = {
+            list: []
         }
     }
+
+    componentDidUpdate() {
+        if (this.props.list.length) {
+            this.setState((prev, props) => ({
+                list: prev.list.splice(1, 1, props)
+            }))
+        }
+        console.log(this.props.list.length);
+        console.log('updated');
+    }
     componentDidMount() {
-
-
+        console.log('mount');
         !this.props.editable && this.columns.pop()
     }
     columns = [{
@@ -47,7 +52,7 @@ class MultiTable extends React.Component {
         render: (value) => {
             return <Input
                 value={value}
-                // onChange={this.handleChange}
+                onChange={this.handleChange}
                 // onPressEnter={this.check}
                 suffix={(
                     <Icon
@@ -72,6 +77,9 @@ class MultiTable extends React.Component {
         width: 100
 
     }];
+    handleChange(s) {
+        console.log(s);
+    }
     change(val, src) {
         this.setState({
             list: [src]
