@@ -2,35 +2,48 @@ import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
 import { Layout, Tabs, Icon, Divider, Upload, Input, Select, Pagination, Radio, Menu, Button, Card } from 'antd'
-import axios from 'axios'
+import axios from './net'
 import MultiTable from './table';
 
 
 
 
 class App extends Component {
-
-  state = { list: [], branchList: [], moduleList: [], selectByBranch: true }
+  _this = this
+  state = { list: [], totalCount: 0, branchList: [], moduleList: [], selectByBranch: true }
   componentDidMount() {
     axios.get('/branchList').then(data => {
       this.setState({
-        branchList: data.data
+        branchList: data
       })
     })
     axios.get('/moduleList').then(data => {
       this.setState({
-        moduleList: data.data
+        moduleList: data
       })
     })
-    this.getData = (branch, module, key, state) => {
-      axios.get('/data', { params: { branch, module, key } }).then(data => {
+    this.getData = ({ branch, module, key, page = { pageIdx: 1, pageSize: 10 } }) => {
+      axios.post('/data', { branch, module, key, page }).then(data => {
         this.setState({
-          list: data.data
+          list: data.list,
+          totalCount: data.totalCount
         })
       })
     }
-
-    this.getData('v1.0', '', '')
+    this.searchParam = {
+      branch: 'v1.0',
+      module: '',
+      key: '',
+      page: {
+        pageIdx: 1,
+        pageSize: 10
+      }
+    }
+    this.getData(this.searchParam)
+  }
+  pageFun(page) {
+    this.searchParam.page.pageIdx = page.current
+    this.getData(this.searchParam)
   }
   render() {
     return (
@@ -53,12 +66,12 @@ class App extends Component {
           <span>筛选：</span>
           <Radio.Group defaultValue="1" onChange={() => this.setState({ selectByBranch: !this.state.selectByBranch })}>
             <Radio value="1">按版本</Radio>
-            <Select defaultValue='v1.0' style={{ width: 120 }} onSelect={(val) => this.getData(val, '', '')} disabled={!this.state.selectByBranch}>
+            <Select defaultValue='v1.0' style={{ width: 120 }} onSelect={(val) => { this.searchParam.branch = val; this.getData(this.searchParam) }} disabled={!this.state.selectByBranch}>
               {this.state.branchList.map(item => (<Select.Option key={item} value={item}>{item}</Select.Option>))}
             </Select>
             <Radio value="2">按模块</Radio>
             {/* <Dropdown overlay={ModuleList} trigger={['click']}> */}
-            <Select defaultValue='首页' style={{ width: 120 }} onSelect={(val) => this.getData('', val, '')} disabled={this.state.selectByBranch}>
+            <Select defaultValue='首页' style={{ width: 120 }} onSelect={(val) => { this.searchParam.module = val; this.getData(this.searchParam) }} disabled={this.state.selectByBranch}>
               {this.state.moduleList.map(item => (<Select.Option key={item} value={item}>{item}</Select.Option>))}
             </Select>
           </Radio.Group>
@@ -75,7 +88,7 @@ class App extends Component {
           ></Card>
         </div>
         <div>
-          <MultiTable list={this.state.list} editable={true} ></MultiTable>
+          <MultiTable list={this.state.list} count={this.state.totalCount} getMore={this.pageFun} editable={true} ></MultiTable>
         </div>
         <div>
           <Button>取消</Button>

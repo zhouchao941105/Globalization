@@ -3,15 +3,17 @@
 */
 const Koa = require('koa');
 const Router = require('koa-router')()
+const bodyParser = require('koa-bodyparser')
 // var bodyParser = require('body-parser')
 const api = require('./api')
 console.log(api);
 var app = new Koa();
 var host = '127.0.0.1';
 var port = 9090;
+app.use(bodyParser())
 Router.get('/branchList', api.getBranchList)
 Router.get('/moduleList', api.getModuleList)
-Router.get('/data', api.getData)
+Router.post('/data', api.getData)
 app
     .use(Router.routes())
     .use(Router.allowedMethods());
