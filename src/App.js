@@ -88,7 +88,7 @@ class App extends Component {
           ></Card>
         </div>
         <div>
-          <MultiTable list={this.state.list} count={this.state.totalCount} getMore={this.pageFun} editable={true} ></MultiTable>
+          <MultiTable list={this.state.list} count={this.state.totalCount} getMore={(src) => this.pageFun(src)} editable={true} ></MultiTable>
         </div>
         <div>
           <Button>取消</Button>

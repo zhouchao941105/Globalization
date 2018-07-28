@@ -77,9 +77,7 @@ class MultiTable extends React.Component {
         width: 100
 
     }];
-    handleChange(s) {
-        console.log(s);
-    }
+
     change(val, src) {
         this.setState({
             list: [src]
