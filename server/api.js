@@ -13,7 +13,7 @@ let option = {
     },
     //获取双语数据
     getData: async (ctx, next) => {
-        var query = ctx.request.query
+        var query = ctx.request.body
         var dbQuery, tempList
         if (query.module || query.branch) {
             if (query.module) {
@@ -39,7 +39,8 @@ let option = {
             }
 
         }
-        tempList = await trans.find(dbQuery).exec()
+        let count = await trans.count(dbQuery)
+        tempList = await trans.find(dbQuery).skip(query.page.pageSize * (query.page.pageIdx - 1)).limit(query.page.pageSize).exec()
         for (var i = 0; i < tempList.length; i++) {
             //调试
             var k = await trans.find({ name: tempList[i].name }).exec()
@@ -47,12 +48,15 @@ let option = {
 
         }
 
-        ctx.response.body = tempList
+        ctx.response.body = { list: tempList, currentIdx: query.page.pageIdx, totalCount: count }
 
     },
     //Todo
     //生效接口（生效）
     //保存接口（未生效）
+    save: async (ctx, next) => {
+
+    }
     //获取同中文名的情况下，之前的翻译
     //
     //
