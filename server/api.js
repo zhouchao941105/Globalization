@@ -53,9 +53,20 @@ let option = {
     },
     //Todo
     //生效接口（生效）
+    enable: async (ctx, next) => {
+        let req = ctx.request.body.list
+        req.map(item => {
+            await trans.findByIdAndUpdate(item, { state: 1 }).exec()
+        })
+        ctx.response.body = true
+    },
     //保存接口（未生效）
     save: async (ctx, next) => {
-
+        let req = ctx.request.body.list
+        req.map(item => {
+            await trans.findByIdAndUpdate(item._id, { eName: item.eName }).exec()
+        })
+        ctx.response.body = true
     }
     //获取同中文名的情况下，之前的翻译
     //
