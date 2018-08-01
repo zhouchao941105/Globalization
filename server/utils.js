@@ -9,7 +9,7 @@ function getBranchList() {
     if (!shell.which('git')) {
         shell.echo('Sorry, this script requires git');
         shell.exit(1);
-        return [1];
+        return [];
     }
     shell.cd(config.get('projectPath'));
     let branches = shell.exec('git branch').stdout.split('\n').filter(i => i.trim().startsWith('v')).map(i => i.trim());
