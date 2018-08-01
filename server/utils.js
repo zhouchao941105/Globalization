@@ -16,6 +16,17 @@ function getBranchList() {
     return branches;
 }
 
+/**
+ *将文本按照每行分割成数组
+ *
+ * @param {String} text 待分割文本
+ * @returns {Array} 分割结果
+ */
+function getArrayByLine(text) {
+    return text.replace(/\r\n/g, '\r').replace(/\n/g, '\r').split(',\r')
+}
+
 module.exports = {
-    getBranchList
+    getBranchList,
+    getArrayByLine
 }

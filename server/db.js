@@ -39,15 +39,16 @@ trans.find(function (err, list) {
 })
 var fs = require('fs')
 var path = require('path')
+const utils = require('./utils')
 function readFile() {
     var cnList = []
     var enList = []
     var cnRes = fs.readFileSync(path.join(__dirname, '../../Docs/lang.cn.js'))
-    cnList = cnList.concat(cnRes.toString('utf-8', 13, cnRes.length - 28).split(',\r'))
+    cnList = cnList.concat(utils.getArrayByLine(cnRes.toString('utf-8', 13, cnRes.length - 28).replace(/\r\n/g, '\r')))
 
 
     var enRes = fs.readFileSync(path.join(__dirname, '../../Docs/lang.en.js'))
-    enList = enList.concat(enRes.toString('utf-8', 13, enRes.length - 28).split(',\r'))
+    enList = enList.concat(utils.getArrayByLine(enRes.toString('utf-8', 13, enRes.length - 28).replace(/\r\n/g, '\r')))
     enList.forEach((item, idx) => {
         var identifer = item.split(':')[0]
         var tempeName = item.split(':')[1].trim()
