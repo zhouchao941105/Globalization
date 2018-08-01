@@ -2,10 +2,11 @@
     这个文件用来维护api，具体该返回什么数据等等都在这里操作
 */
 const trans = require('./db')
+const utils = require('./utils')
 let option = {
     //获取分支列表
     getBranchList: async (ctx, next) => {
-        ctx.response.body = await trans.distinct('branch').exec()
+        ctx.response.body = await utils.getBranchList();
     },
     //获取模块列表
     getModuleList: async (ctx, next) => {
@@ -53,21 +54,21 @@ let option = {
     },
     //Todo
     //生效接口（生效）
-    enable: async (ctx, next) => {
-        let req = ctx.request.body.list
-        req.map(item => {
-            await trans.findByIdAndUpdate(item, { state: 1 }).exec()
-        })
-        ctx.response.body = true
-    },
-    //保存接口（未生效）
-    save: async (ctx, next) => {
-        let req = ctx.request.body.list
-        req.map(item => {
-            await trans.findByIdAndUpdate(item._id, { eName: item.eName }).exec()
-        })
-        ctx.response.body = true
-    }
+    // enable: async (ctx, next) => {
+    //     let req = ctx.request.body.list
+    //     req.map(item => {
+    //         await trans.findByIdAndUpdate(item, { state: 1 }).exec()
+    //     })
+    //     ctx.response.body = true
+    // },
+    // //保存接口（未生效）
+    // save: async (ctx, next) => {
+    //     let req = ctx.request.body.list
+    //     req.map(item => {
+    //         await trans.findByIdAndUpdate(item._id, { eName: item.eName }).exec()
+    //     })
+    //     ctx.response.body = true
+    // }
     //获取同中文名的情况下，之前的翻译
     //
     //
