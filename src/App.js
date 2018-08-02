@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
+// eslint-disable-next-line
 import { Layout, Tabs, Icon, Divider, Upload, Input, Select, Pagination, Radio, Menu, Button, Card } from 'antd'
 import axios from './net'
 import MultiTable from './table';
@@ -51,6 +52,11 @@ class App extends Component {
     this.searchParam.page.pageIdx = page.current
     this.getData(this.searchParam)
   }
+  syncData() {
+    axios.post('/syncData', { branch: this.searchParam.branch }).then(data => {
+      console.log(data);
+    })
+  }
   render() {
     return (
       <div className="App">
@@ -90,12 +96,13 @@ class App extends Component {
           <span>版本/模块:</span>
           <span>招生</span>
           <Button style={{ float: 'right' }}>编辑</Button>
+          <Button onClick={this.syncData.bind(this)} style={{ float: 'right', marginRight: '10px' }}>同步数据</Button>
         </div>
-        <div>
+        <div style={{ padding: '20px' }}>
           <Card
 
             style={{ width: '100%' }}
-            cover={<img src="http://ok0nex8hq.bkt.clouddn.com/1533051037.png" />}
+            cover={<img alt="1" src="http://ok0nex8hq.bkt.clouddn.com/1533051037.png" />}
           ></Card>
         </div>
         <div>

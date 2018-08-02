@@ -3,10 +3,11 @@
 */
 const trans = require('./db')
 const utils = require('./utils')
+const readFile = require('./fileIO');
 let option = {
     //获取分支列表
     getBranchList: async (ctx, next) => {
-        ctx.response.body = await utils.getBranchList();
+        ctx.response.body = await utils.getBranchList(1);
     },
     //获取模块列表
     getModuleList: async (ctx, next) => {
@@ -52,6 +53,24 @@ let option = {
         ctx.response.body = { list: tempList, currentIdx: query.page.pageIdx, totalCount: count }
 
     },
+    syncData: async (ctx, next) => {
+        await trans.find(function (err, list) {
+            if (err) return console.log(err)
+            if (list.length === 0) {
+                let stor = utils.getLangPathStore();
+                ctx.response.body = { msg: 'langPathStore Finish' };
+                stor.forEach(async path => {
+                    await readFile(path);
+                })
+                console.log('langPathStore Finish');
+                // next();
+            } else {
+                ctx.response.body = { msg: 'langPathStore already exist' };
+                // next();
+            }
+
+        })
+    }
     //Todo
     //生效接口（生效）
     // enable: async (ctx, next) => {
