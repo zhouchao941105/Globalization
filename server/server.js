@@ -13,6 +13,7 @@ var port = 9090;
 app.use(bodyParser())
 Router.get('/branchList', api.getBranchList)
 Router.get('/moduleList', api.getModuleList)
+Router.post('/syncData', api.syncData)
 Router.post('/data', api.getData)
 app
     .use(Router.routes())

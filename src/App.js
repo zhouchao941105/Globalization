@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
+// eslint-disable-next-line
 import { Layout, Tabs, Icon, Divider, Upload, Input, Select, Pagination, Radio, Menu, Button, Card } from 'antd'
 import axios from './net'
 import MultiTable from './table';
@@ -10,12 +11,18 @@ import MultiTable from './table';
 
 class App extends Component {
   _this = this
-  state = { list: [], totalCount: 0, branchList: [], moduleList: [], selectByBranch: true }
+  state = { list: [], totalCount: 0, branchList: [], moduleList: [], selectByBranch: true, defaultBranch: '' }
   componentDidMount() {
     axios.get('/branchList').then(data => {
       this.setState({
-        branchList: data
+        branchList: data,
+        defaultBranch: data[0]
+      }, () => {
+        this.searchParam.branch = this.state.defaultBranch;
       })
+
+    }).then(() => {
+      this.getData(this.searchParam)
     })
     axios.get('/moduleList').then(data => {
       this.setState({
@@ -39,11 +46,16 @@ class App extends Component {
         pageSize: 10
       }
     }
-    this.getData(this.searchParam)
+
   }
   pageFun(page) {
     this.searchParam.page.pageIdx = page.current
     this.getData(this.searchParam)
+  }
+  syncData() {
+    axios.post('/syncData', { branch: this.searchParam.branch }).then(data => {
+      console.log(data);
+    })
   }
   render() {
     return (
@@ -66,7 +78,11 @@ class App extends Component {
           <span>筛选：</span>
           <Radio.Group defaultValue="1" onChange={() => this.setState({ selectByBranch: !this.state.selectByBranch })}>
             <Radio value="1">按版本</Radio>
-            <Select defaultValue='v1.0' style={{ width: 120 }} onSelect={(val) => { this.searchParam.branch = val; this.getData(this.searchParam) }} disabled={!this.state.selectByBranch}>
+            <Select
+              defaultValue={this.state.defaultBranch}
+              style={{ width: 120 }}
+              onChange={(val) => { this.searchParam.branch = val; this.getData(this.searchParam) }}
+              disabled={!this.state.selectByBranch}>
               {this.state.branchList.map(item => (<Select.Option key={item} value={item}>{item}</Select.Option>))}
             </Select>
             <Radio value="2">按模块</Radio>
@@ -80,11 +96,13 @@ class App extends Component {
           <span>版本/模块:</span>
           <span>招生</span>
           <Button style={{ float: 'right' }}>编辑</Button>
+          <Button onClick={this.syncData.bind(this)} style={{ float: 'right', marginRight: '10px' }}>同步数据</Button>
         </div>
-        <div>
+        <div style={{ padding: '20px' }}>
           <Card
-            style={{ width: 320 }}
-            cover={<img alt="example" src="https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png" />}
+
+            style={{ width: '100%' }}
+            cover={<img alt="1" src="http://ok0nex8hq.bkt.clouddn.com/1533051037.png" />}
           ></Card>
         </div>
         <div>
