@@ -2,12 +2,12 @@ import React from 'react'
 import { Table, Select, Input, Icon } from 'antd'
 
 class MultiTable extends React.Component {
-    // constructor() {
-    //     super()
-    //     this.state = {
-    //         list: []
-    //     }
-    // }
+    constructor() {
+        super()
+        this.state = {
+            list: []
+        }
+    }
 
     // componentDidUpdate() {
     //     if (this.props.list.length) {
@@ -18,8 +18,10 @@ class MultiTable extends React.Component {
     //     console.log(this.props.list.length);
     //     console.log('updated');
     // }
+    componentWillReceiveProps(props) {
+        this.setState({ list: props.list })
+    }
     componentDidMount() {
-        console.log('mount');
         !this.props.editable && this.columns.pop()
     }
     columns = [{
@@ -35,11 +37,10 @@ class MultiTable extends React.Component {
         key: 'history',
         width: 300,
         render: (item, src) => {
-            return <Select placeholder="Please Select" style={{ width: '100%' }} onSelect={(val) => {
-                console.log(src);
-                src.eName = val;
+            return <Select placeholder="Please Select" style={{ width: '100%' }} onSelect={(val, a) => {
+                // src.eName = val;
+                // console.log(src.eName);
                 this.change(val, src)
-                console.log(src.eName);
             }}>
                 {item.map(unit => <Select.Option key={unit} value={unit}>{unit}</Select.Option>)}
             </Select>
@@ -77,16 +78,21 @@ class MultiTable extends React.Component {
         width: 100
 
     }];
-
-    change(val, src) {
+    handleChange(v) {
+        console.log(v);
+    }
+    change(val, src, a) {
+        var temp = this.state.list
+        temp.find(item => item._id === src._id).eName = val
+        console.log(temp);
         this.setState({
-            list: [src]
+            list: temp
         })
         // this.props.list.find(unit => unit._id === src._id).eName = val
         // this.props.list.unshift({ name: 1 })
     }
     render() {
-        return <Table rowKey="_id" dataSource={this.props.list} columns={this.columns} onChange={src => this.props.getMore(src)} pagination={{ position: 'top', total: this.props.count }}></Table>
+        return <Table rowKey="_id" dataSource={this.state.list} columns={this.columns} onChange={src => this.props.getMore(src)} pagination={{ position: 'top', total: this.props.count }}></Table>
     }
 }
 export default MultiTable
