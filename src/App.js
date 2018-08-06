@@ -48,6 +48,7 @@ class App extends Component {
     }
 
   }
+
   pageFun(page) {
     this.searchParam.page.pageIdx = page.current
     this.getData(this.searchParam)
@@ -105,15 +106,7 @@ class App extends Component {
             cover={<img alt="1" src="http://ok0nex8hq.bkt.clouddn.com/1533051037.png" />}
           ></Card>
         </div>
-        <div>
-          <MultiTable list={this.state.list} count={this.state.totalCount} getMore={(src) => this.pageFun(src)} editable={true} ></MultiTable>
-        </div>
-        <div>
-          <Button>取消</Button>
-          <Button>保存</Button>
-          <Button>生效</Button>
-
-        </div>
+        <MultiTable list={this.state.list} count={this.state.totalCount} getMore={(src) => this.pageFun(src)} editable={true} ></MultiTable>
       </div>
     );
   }

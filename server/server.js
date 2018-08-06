@@ -15,6 +15,7 @@ Router.get('/branchList', api.getBranchList)
 Router.get('/moduleList', api.getModuleList)
 Router.post('/syncData', api.syncData)
 Router.post('/data', api.getData)
+Router.post('/save', api.save)
 app
     .use(Router.routes())
     .use(Router.allowedMethods());

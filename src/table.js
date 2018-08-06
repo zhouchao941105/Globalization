@@ -1,6 +1,6 @@
 import React from 'react'
-import { Table, Select, Input, Icon } from 'antd'
-
+import { Table, Select, Input, Icon, Button } from 'antd'
+import axios from './net'
 class MultiTable extends React.Component {
     constructor() {
         super()
@@ -50,7 +50,7 @@ class MultiTable extends React.Component {
         dataIndex: 'eName',
         key: 'eName',
         width: 300,
-        render: (value) => {
+        render: (value, a) => {
             return <Input
                 value={value}
                 onChange={this.handleChange}
@@ -84,15 +84,24 @@ class MultiTable extends React.Component {
     change(val, src, a) {
         var temp = this.state.list
         temp.find(item => item._id === src._id).eName = val
-        console.log(temp);
         this.setState({
             list: temp
         })
         // this.props.list.find(unit => unit._id === src._id).eName = val
         // this.props.list.unshift({ name: 1 })
     }
+    save(list) {
+        axios.post('/save', { list: this.state.list.map(item => ({ _id: item._id, eName: item.eName })) })
+        console.log(this.state.list);
+
+    }
     render() {
-        return <Table rowKey="_id" dataSource={this.state.list} columns={this.columns} onChange={src => this.props.getMore(src)} pagination={{ position: 'top', total: this.props.count }}></Table>
+        return <div>
+            <Table rowKey="_id" dataSource={this.state.list} columns={this.columns} onChange={src => this.props.getMore(src)} pagination={{ position: 'top', total: this.props.count }}></Table>
+            <Button>取消</Button>
+            <Button onClick={() => this.save()}>保存</Button>
+            <Button>生效</Button>
+        </div>
     }
 }
 export default MultiTable
