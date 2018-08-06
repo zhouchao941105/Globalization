@@ -75,18 +75,17 @@ let option = {
     //生效接口（生效）
     enable: async (ctx, next) => {
         let req = ctx.request.body.list
-        for (var i = 0; i < req.length; i++) {
-            await trans.findByIdAndUpdate(req[i], { state: 1 }).exec()
-        }
+        req.forEach(async (item) => {
+            await trans.findByIdAndUpdate(item, { state: 1 }).exec()
+        })
         ctx.response.body = true
     },
     //保存接口（未生效）
     save: async (ctx, next) => {
         let req = ctx.request.body.list
-        for (var i = 0; i < req.length; i++) {
-            await trans.findByIdAndUpdate(req[i]._id, { eName: req[i].eName }).exec()
-
-        }
+        req.forEach(async (item) => {
+            await trans.findByIdAndUpdate(item._id, { eName: item.eName }).exec()
+        })
         ctx.response.body = true
     }
     //Todo
