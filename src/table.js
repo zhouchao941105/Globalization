@@ -73,10 +73,12 @@ class MultiTable extends React.Component {
 
     }, {
         title: '生效状态',
-        dataIndex: 'status',
-        key: 'status',
-        width: 100
-
+        dataIndex: 'state',
+        key: 'state',
+        width: 100,
+        render: val => {
+            return val ? '已生效' : '未生效'
+        }
     }];
     handleChange(v) {
         console.log(v);
@@ -95,12 +97,15 @@ class MultiTable extends React.Component {
         console.log(this.state.list);
 
     }
+    enable(list) {
+        axios.post('/enable', { list: this.state.list.map(item => item._id) })
+    }
     render() {
         return <div>
             <Table rowKey="_id" dataSource={this.state.list} columns={this.columns} onChange={src => this.props.getMore(src)} pagination={{ position: 'top', total: this.props.count }}></Table>
             <Button>取消</Button>
             <Button onClick={() => this.save()}>保存</Button>
-            <Button>生效</Button>
+            <Button onClick={() => this.enable()}>生效</Button>
         </div>
     }
 }
