@@ -94,11 +94,16 @@ class MultiTable extends React.Component {
     }
     save(list) {
         axios.post('/save', { list: this.state.list.map(item => ({ _id: item._id, eName: item.eName })) })
+            .then(() => {
+                this.props.fresh()
+            })
         console.log(this.state.list);
 
     }
     enable(list) {
-        axios.post('/enable', { list: this.state.list.map(item => item._id) })
+        axios.post('/enable', { list: this.state.list.map(item => item._id) }).then(() => {
+            this.props.fresh()
+        })
     }
     render() {
         return <div>

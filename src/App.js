@@ -48,7 +48,9 @@ class App extends Component {
     }
 
   }
-
+  refresh() {
+    this.getData(this.searchParam)
+  }
   pageFun(page) {
     this.searchParam.page.pageIdx = page.current
     this.getData(this.searchParam)
@@ -106,7 +108,7 @@ class App extends Component {
             cover={<img alt="1" src="http://ok0nex8hq.bkt.clouddn.com/1533051037.png" />}
           ></Card>
         </div>
-        <MultiTable list={this.state.list} count={this.state.totalCount} getMore={(src) => this.pageFun(src)} editable={true} ></MultiTable>
+        <MultiTable list={this.state.list} count={this.state.totalCount} fresh={() => this.refresh()} getMore={(src) => this.pageFun(src)} editable={true} ></MultiTable>
       </div>
     );
   }

@@ -84,7 +84,7 @@ let option = {
     save: async (ctx, next) => {
         let req = ctx.request.body.list
         req.forEach(async (item) => {
-            await trans.findByIdAndUpdate(item._id, { eName: item.eName }).exec()
+            await trans.findByIdAndUpdate(item._id, { eName: item.eName, state: false }).exec()
         })
         ctx.response.body = true
     }
