@@ -53,7 +53,7 @@ class MultiTable extends React.Component {
         render: (value, a) => {
             return <Input
                 value={value}
-                onChange={this.handleChange}
+                onChange={(e) => this.handleChange(e, value, a)}
                 // onPressEnter={this.check}
                 suffix={(
                     <Icon
@@ -80,24 +80,34 @@ class MultiTable extends React.Component {
             return val ? '已生效' : '未生效'
         }
     }];
-    handleChange(v) {
-        console.log(v);
-    }
-    change(val, src, a) {
+    handleChange(e, value, src) {
+        src.modify = true
         var temp = this.state.list
-        temp.find(item => item._id === src._id).eName = val
+        temp.find(item => item._id === src._id).eName = e.target.value;
         this.setState({
             list: temp
         })
+    }
+    change(val, src, a) {
+        if (val !== src.eName) {
+            src.modify = true
+            var temp = this.state.list
+
+            temp.find(item => item._id === src._id).eName = val
+            this.setState({
+                list: temp
+            })
+        }
+
         // this.props.list.find(unit => unit._id === src._id).eName = val
         // this.props.list.unshift({ name: 1 })
     }
-    async save(list) {
-        await axios.post('/save', { list: this.state.list.map(item => ({ _id: item._id, eName: item.eName })) })
+    async save() {
+        await axios.post('/save', { list: this.state.list.filter(item => item.modify).map(item => ({ _id: item._id, eName: item.eName })) })
         this.props.fresh()
 
     }
-    async enable(list) {
+    async enable() {
         await axios.post('/enable', { list: this.state.list.filter(item => !item.state).map(item => item._id) })
         this.props.fresh()
     }
