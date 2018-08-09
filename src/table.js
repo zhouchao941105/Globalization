@@ -37,7 +37,7 @@ class MultiTable extends React.Component {
         key: 'history',
         width: 300,
         render: (item, src) => {
-            return <Select placeholder="Please Select" style={{ width: '100%' }} onSelect={(val, a) => {
+            return <Select placeholder="Please Select" defaultValue={src.eName} style={{ width: '100%' }} onSelect={(val, a) => {
                 // src.eName = val;
                 // console.log(src.eName);
                 this.change(val, src)
@@ -114,7 +114,7 @@ class MultiTable extends React.Component {
     render() {
         return <div>
             <Table rowKey="_id" dataSource={this.state.list} columns={this.columns} onChange={src => this.props.getMore(src)} pagination={{ position: 'top', total: this.props.count }}></Table>
-            <Button>取消</Button>
+            <Button onClick={() => this.props.fresh()}>取消</Button>
             <Button onClick={() => this.save()}>保存</Button>
             <Button onClick={() => this.enable()}>生效</Button>
         </div>
