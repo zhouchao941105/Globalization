@@ -1,5 +1,5 @@
 import React from 'react'
-import { Table, Select, Input, Icon, Button } from 'antd'
+import { Table, Select, Input, Icon, Button, Popconfirm } from 'antd'
 import axios from './net'
 class MultiTable extends React.Component {
     constructor() {
@@ -36,11 +36,11 @@ class MultiTable extends React.Component {
         dataIndex: 'history',
         key: 'history',
         width: 300,
-        render: (item, src) => {
+        render: (item, src, idx) => {
             return <Select placeholder="Please Select" defaultValue={src.eName} style={{ width: '100%' }} onSelect={(val, a) => {
                 // src.eName = val;
                 // console.log(src.eName);
-                this.change(val, src)
+                this.change(val, src, idx)
             }}>
                 {item.map(unit => <Select.Option key={unit} value={unit}>{unit}</Select.Option>)}
             </Select>
@@ -50,10 +50,10 @@ class MultiTable extends React.Component {
         dataIndex: 'eName',
         key: 'eName',
         width: 300,
-        render: (value, a) => {
+        render: (value, src, idx) => {
             return <Input
                 value={value}
-                onChange={(e) => this.handleChange(e, value, a)}
+                onChange={(e) => this.handleChange(e, src, idx)}
                 // onPressEnter={this.check}
                 suffix={(
                     <Icon
@@ -80,22 +80,20 @@ class MultiTable extends React.Component {
             return val ? '已生效' : '未生效'
         }
     }];
-    handleChange(e, value, src) {
+    handleChange(e, src) {
         src.modify = true
-        var temp = this.state.list
-        temp.find(item => item._id === src._id).eName = e.target.value;
+        src.eName = e.target.value;
         this.setState({
-            list: temp
+            list: this.state.list
         })
     }
-    change(val, src, a) {
+    change(val, src, idx) {
         if (val !== src.eName) {
             src.modify = true
-            var temp = this.state.list
 
-            temp.find(item => item._id === src._id).eName = val
+            src.eName = val
             this.setState({
-                list: temp
+                list: this.state.list
             })
         }
 
@@ -114,9 +112,15 @@ class MultiTable extends React.Component {
     render() {
         return <div>
             <Table rowKey="_id" dataSource={this.state.list} columns={this.columns} onChange={src => this.props.getMore(src)} pagination={{ position: 'top', total: this.props.count }}></Table>
-            <Button onClick={() => this.props.fresh()}>取消</Button>
-            <Button onClick={() => this.save()}>保存</Button>
-            <Button onClick={() => this.enable()}>生效</Button>
+            <Popconfirm title="确认取消？" onConfirm={() => this.props.fresh()}>
+                <Button >取消</Button>
+            </Popconfirm>
+            <Popconfirm title="确认保存？" onConfirm={() => this.save()}>
+                <Button >保存</Button>
+            </Popconfirm>
+            <Popconfirm title="确认生效？" onConfirm={() => this.enable()}>
+                <Button>生效</Button>
+            </Popconfirm>
         </div>
     }
 }

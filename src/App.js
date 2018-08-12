@@ -131,7 +131,7 @@ class App extends Component {
         <div style={{ textAlign: 'left' }}>
           <span>版本/模块:</span>
           <span>招生</span>
-          <Button style={{ float: 'right' }}>编辑</Button>
+          {/* <Button style={{ float: 'right' }}>编辑</Button> */}
           <Button onClick={this.syncData.bind(this)} style={{ float: 'right', marginRight: '10px' }}>同步数据</Button>
         </div>
         <div style={{ padding: '20px' }}>
