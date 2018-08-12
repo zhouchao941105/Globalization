@@ -52,7 +52,7 @@ class App extends Component {
         this.module = ''
         this.key = ''
         this.page.pageIdx = 1
-        this.state = false
+        this.state = ''
       },
       changeToPageType: function () {
         //切换到页面翻译
@@ -65,21 +65,31 @@ class App extends Component {
     }
 
   }
+  //刷新，用于table里取消按钮的回调
   refresh() {
     this.getData(this.searchParam)
   }
+  //点击页码的回调
   pageFun(page) {
     this.searchParam.page.pageIdx = page.current
     this.getData(this.searchParam)
   }
+  //将现有的双语同步到数据库
   syncData() {
     axios.post('/syncData', { branch: this.searchParam.branch }).then(data => {
       console.log(data);
     })
   }
+  //在页面翻译和翻译总表切换的回调
   changeDocType(flg) {
     this.setState({
       docType: flg
+    })
+  }
+  //导出
+  export() {
+    axios.get('/export').then(res => {
+
     })
   }
   render() {
@@ -118,7 +128,7 @@ class App extends Component {
               </Select>
             </Radio.Group> :
             <div>
-              <Select style={{ width: 120, display: 'inline-block' }} defaultValue="未生效" onSelect={(val) => { this.searchParam.state = val === 0 ? '' : val === 1 ? false : true; this.getData(this.searchParam); }}>
+              <Select style={{ width: 120, display: 'inline-block' }} defaultValue="全部" onSelect={(val) => { this.searchParam.state = val === 0 ? '' : val === 1 ? false : true; this.getData(this.searchParam); }}>
                 <Select.Option key='0'>全部</Select.Option>
                 <Select.Option key='1'>未生效</Select.Option>
                 <Select.Option key='2'>已生效</Select.Option>
@@ -131,7 +141,7 @@ class App extends Component {
         <div style={{ textAlign: 'left' }}>
           <span>版本/模块:</span>
           <span>招生</span>
-          {/* <Button style={{ float: 'right' }}>编辑</Button> */}
+          <Button style={{ float: 'right' }} onClick={() => this.export()}>导出</Button>
           <Button onClick={this.syncData.bind(this)} style={{ float: 'right', marginRight: '10px' }}>同步数据</Button>
         </div>
         <div style={{ padding: '20px' }}>

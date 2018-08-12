@@ -17,6 +17,7 @@ Router.post('/syncData', api.syncData)
 Router.post('/data', api.getData)
 Router.post('/save', api.save)
 Router.post('/enable', api.enable)
+Router.get('/export', api.export)
 app
     .use(Router.routes())
     .use(Router.allowedMethods());
