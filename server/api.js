@@ -75,13 +75,18 @@ let option = {
     //导出
     export: async (ctx) => {
         let wholeList = await trans.find({ state: true }).exec()
+        let inputstr = ''
+        wholeList.forEach(item => {
+            inputstr += "'" + item.name + "':'" + item.eName + "',\n"
+        })
         //todo根据location排序
-        let str = `
-            ${wholeList.map(item => item.name + ":" + item.eName)}
-        `
-        ctx.response.body = true
+        let str = `let $lang={
+            ${inputstr}
+        }`
 
         writeFile('../Docs/lang.js', str)
+        ctx.response.body = true
+
     },
     //生效接口（生效）
     enable: async (ctx, next) => {
