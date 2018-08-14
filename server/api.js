@@ -3,7 +3,7 @@
 */
 const trans = require('./db')
 const utils = require('./utils')
-const readFile = require('./fileIO');
+const { readFile, writeFile } = require('./fileIO');
 let option = {
     //获取分支列表
     getBranchList: async (ctx, next) => {
@@ -74,7 +74,14 @@ let option = {
     //Todo
     //导出
     export: async (ctx) => {
+        let wholeList = await trans.find({ state: true }).exec()
+        //todo根据location排序
+        let str = `
+            ${wholeList.map(item => item.name + ":" + item.eName)}
+        `
+        ctx.response.body = true
 
+        writeFile('../Docs/lang.js', str)
     },
     //生效接口（生效）
     enable: async (ctx, next) => {
