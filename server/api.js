@@ -75,16 +75,37 @@ let option = {
     //导出
     export: async (ctx) => {
         let wholeList = await trans.find({ state: true }).exec()
-        let inputstr = ''
+        let inputstrCn = ''
         wholeList.forEach(item => {
-            inputstr += "'" + item.name + "':'" + item.eName + "',\n"
+            inputstrCn += "'" + item.identifer + "':'" + item.name + "',\n"
         })
-        //todo根据location排序
-        let str = `let $lang={
-            ${inputstr}
-        }`
+        let inputstrEn = ''
+        wholeList.forEach(item => {
+            inputstrEn += "'" + item.identifer + "':'" + item.eName + "',\n"
+        })
+        //todo根据location分组
+        let arrObj = {}
+        let locationList = [... new Set(wholeList.map(item => item.location))]
+        locationList.forEach(item => {
+            arrObj[item] = wholeList.filter(unit => unit.location == item)
+        })
+        for (let i in arrObj) {
+            writeF(true, i)
+            writeF(false, i)
+        }
+        function writeF(flg, i) {
+            let cnOutput = ''
+            arrObj[i].forEach(item => {
+                cnOutput += "'" + item.identifer + "':'" + item[flg ? 'name' : 'eName'] + "',\n"
+            })
+            let cnOut = `let $lang={
+                ${cnOutput}
+            }
+            export default $lang`
+            // console.log(`../${i}${flg ? '/lang.c.js' : '/lang.e.js'}`);
+            writeFile(`../${i}${flg ? '/lang.c.js' : '/lang.e.js'}`, cnOut)
+        }
 
-        writeFile('../Docs/lang.js', str)
         ctx.response.body = true
 
     },

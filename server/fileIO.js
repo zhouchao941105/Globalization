@@ -56,6 +56,7 @@ async function readFile(_path) {
 
 }
 function writeFile(_path, src) {
+    debugger
     fs.openSync(_path, 'a')//a代表不存在的时候就新建
     fs.writeFileSync(_path, src)
 }
