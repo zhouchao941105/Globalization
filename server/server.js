@@ -14,7 +14,7 @@ app.use(bodyParser())
 Router.get('/branchList', api.getBranchList)
 Router.get('/moduleList', api.getModuleList)
 Router.get('/export', api.export)
-
+Router.get('/login', api.login)
 Router.post('/syncData', api.syncData)
 Router.post('/data', api.getData)
 Router.post('/save', api.save)

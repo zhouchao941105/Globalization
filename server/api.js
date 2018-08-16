@@ -3,6 +3,8 @@
 */
 const trans = require('./db')
 const utils = require('./utils')
+const session = require('koa-session')
+
 const { readFile, writeFile } = require('./fileIO');
 let option = {
     //获取分支列表
@@ -72,6 +74,9 @@ let option = {
         })
     },
     //Todo
+    login: async (ctx) => {
+
+    },
     //导出
     export: async (ctx) => {
         let wholeList = await trans.find({ state: true }).exec()
