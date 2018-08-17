@@ -11,7 +11,7 @@ import MultiTable from './table';
 
 class App extends Component {
   _this = this
-  state = { list: [], totalCount: 0, branchList: [], moduleList: [], selectByBranch: true, defaultBranch: '', docType: true }
+  state = { needLogin: true, list: [], totalCount: 0, branchList: [], moduleList: [], selectByBranch: true, defaultBranch: '', docType: true }
   componentDidMount() {
     axios.get('/branchList').then(data => {
       this.setState({
@@ -92,68 +92,87 @@ class App extends Component {
 
     })
   }
+  //登录
+  login() {
+    axios.get('/login', {
+      params: {
+        name: this.state.username,
+        password: this.state.password
+      }
+    }).then(res => {
+      this.setState({
+        needLogin: false
+      })
+    })
+  }
   render() {
     return (
-      <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          {/* <h1 className="App-title">Welcome to React</h1> */}
-        </header>
-        {/* <p className="App-intro">
+      this.state.needLogin ? <div>
+        <Input />
+        <Input />
+        <Button onClick={() => this.login()}>登录</Button>
+      </div> :
+
+        <div className="App">
+          <header className="App-header">
+            <img src={logo} className="App-logo" alt="logo" />
+            {/* <h1 className="App-title">Welcome to React</h1> */}
+          </header>
+          {/* <p className="App-intro">
           To get started, edit <code>src/App.js</code> and save to reload.
         </p> */}
-        {/* <div style={{margin:'0 auto'}}> */}
-        <div>
-          <Radio.Group defaultValue='页面翻译'>
-            <Radio.Button value='页面翻译' onClick={() => { this.changeDocType(true); this.searchParam.changeToPageType(); this.getData(this.searchParam) }}>页面翻译</Radio.Button>
-            <Radio.Button value='翻译总表' onClick={() => { this.changeDocType(false); this.searchParam.changeToAllType(); this.getData(this.searchParam) }} >翻译总表</Radio.Button>
-          </Radio.Group>
-        </div>
-        <div>
-          <span>筛选：</span>
-          {this.state.docType ?
-            <Radio.Group defaultValue="1" onChange={() => this.setState({ selectByBranch: !this.state.selectByBranch })}>
-              <Radio value="1">按版本</Radio>
-              <Select
-                defaultValue={this.state.defaultBranch}
-                style={{ width: 120 }}
-                onChange={(val) => { this.searchParam.branch = val; this.getData(this.searchParam) }}
-                disabled={!this.state.selectByBranch}>
-                {this.state.branchList.map(item => (<Select.Option key={item} value={item}>{item}</Select.Option>))}
-              </Select>
-              <Radio value="2">按模块</Radio>
-              {/* <Dropdown overlay={ModuleList} trigger={['click']}> */}
-              <Select defaultValue='首页' style={{ width: 120 }} onSelect={(val) => { this.searchParam.module = val; this.getData(this.searchParam) }} disabled={this.state.selectByBranch}>
-                {this.state.moduleList.map(item => (<Select.Option key={item} value={item}>{item}</Select.Option>))}
-              </Select>
-            </Radio.Group> :
-            <div>
-              <Select style={{ width: 120, display: 'inline-block' }} defaultValue="全部" onSelect={(val) => { this.searchParam.state = val === 0 ? '' : val === 1 ? false : true; this.getData(this.searchParam); }}>
-                <Select.Option key='0'>全部</Select.Option>
-                <Select.Option key='1'>未生效</Select.Option>
-                <Select.Option key='2'>已生效</Select.Option>
+          {/* <div style={{margin:'0 auto'}}> */}
+          <div>
+            <Radio.Group defaultValue='页面翻译'>
+              <Radio.Button value='页面翻译' onClick={() => { this.changeDocType(true); this.searchParam.changeToPageType(); this.getData(this.searchParam) }}>页面翻译</Radio.Button>
+              <Radio.Button value='翻译总表' onClick={() => { this.changeDocType(false); this.searchParam.changeToAllType(); this.getData(this.searchParam) }} >翻译总表</Radio.Button>
+            </Radio.Group>
+          </div>
+          <div>
+            <span>筛选：</span>
+            {this.state.docType ?
+              <Radio.Group defaultValue="1" onChange={() => this.setState({ selectByBranch: !this.state.selectByBranch })}>
+                <Radio value="1">按版本</Radio>
+                <Select
+                  defaultValue={this.state.defaultBranch}
+                  style={{ width: 120 }}
+                  onChange={(val) => { this.searchParam.branch = val; this.getData(this.searchParam) }}
+                  disabled={!this.state.selectByBranch}>
+                  {this.state.branchList.map(item => (<Select.Option key={item} value={item}>{item}</Select.Option>))}
+                </Select>
+                <Radio value="2">按模块</Radio>
+                {/* <Dropdown overlay={ModuleList} trigger={['click']}> */}
+                <Select defaultValue='首页' style={{ width: 120 }} onSelect={(val) => { this.searchParam.module = val; this.getData(this.searchParam) }} disabled={this.state.selectByBranch}>
+                  {this.state.moduleList.map(item => (<Select.Option key={item} value={item}>{item}</Select.Option>))}
+                </Select>
+              </Radio.Group> :
+              <div>
+                <Select style={{ width: 120, display: 'inline-block' }} defaultValue="全部" onSelect={(val) => { this.searchParam.state = val === 0 ? '' : val === 1 ? false : true; this.getData(this.searchParam); }}>
+                  <Select.Option key='0'>全部</Select.Option>
+                  <Select.Option key='1'>未生效</Select.Option>
+                  <Select.Option key='2'>已生效</Select.Option>
 
-              </Select>
-              <Input.Search enterButton style={{ width: 260, marginLeft: 30 }} onSearch={value => { this.searchParam.key = value; this.getData(this.searchParam) }}></Input.Search>
-            </div>
-          }
-        </div>
-        <div style={{ textAlign: 'left' }}>
-          <span>版本/模块:</span>
-          <span>招生</span>
-          <Button style={{ float: 'right' }} onClick={() => this.export()}>导出</Button>
-          <Button onClick={this.syncData.bind(this)} style={{ float: 'right', marginRight: '10px' }}>同步数据</Button>
-        </div>
-        <div style={{ padding: '20px' }}>
-          <Card
+                </Select>
+                <Input.Search enterButton style={{ width: 260, marginLeft: 30 }} onSearch={value => { this.searchParam.key = value; this.getData(this.searchParam) }}></Input.Search>
+              </div>
+            }
+          </div>
+          <div style={{ textAlign: 'left' }}>
+            <span>版本/模块:</span>
+            <span>招生</span>
+            <Button style={{ float: 'right' }} onClick={() => this.export()}>导出</Button>
+            <Button onClick={this.syncData.bind(this)} style={{ float: 'right', marginRight: '10px' }}>同步数据</Button>
+          </div>
+          <div style={{ padding: '20px' }}>
+            <Card
 
-            style={{ width: '100%' }}
-            cover={<img alt="1" src="http://ok0nex8hq.bkt.clouddn.com/1533051037.png" />}
-          ></Card>
+              style={{ width: '100%' }}
+              cover={<img alt="1" src="http://ok0nex8hq.bkt.clouddn.com/1533051037.png" />}
+            ></Card>
+          </div>
+          <MultiTable list={this.state.list} count={this.state.totalCount} fresh={() => this.refresh()} getMore={(src) => this.pageFun(src)} editable={true} ></MultiTable>
         </div>
-        <MultiTable list={this.state.list} count={this.state.totalCount} fresh={() => this.refresh()} getMore={(src) => this.pageFun(src)} editable={true} ></MultiTable>
-      </div>
-    );
+    )
   }
 }
 
