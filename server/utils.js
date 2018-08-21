@@ -7,14 +7,16 @@ const config = require('config');
  */
 function getBranchList() {
     if (!shell.which('git')) {
-        shell.echo('Sorry, this script requires git');
+        shell.echo('requires git');
         shell.exit(1);
         return [];
     }
     shell.cd(config.get('projectPath'));
     shell.exec('git fetch');
-    let branches = shell.exec('git branch').stdout.split('\n').filter(i => i.trim().startsWith('v')).map(i => i.trim());
-    return branches;
+    shell.exec('git pull');
+    let branches = shell.exec('git branch -a').stdout.split('\n');
+    return branches.filter(i => i.trim().startsWith('remotes'))
+        .map(i => i.split('/').pop()).filter(i => i.startsWith('v')).reverse();
 }
 /**
  *将文本按照每行分割成数组
