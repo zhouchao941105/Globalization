@@ -76,15 +76,17 @@ let option = {
     //Todo
     login: async (ctx) => {
         console.log(ctx.request);
-        let { user, password } = ctx.request.query;
-        if (user == 'admin' && password == "123") {
+        let { name, password } = ctx.request.query;
+        if (name == 'admin' && password == "123") {
             ctx.session = {
-                user,
+                name,
                 password
             }
             ctx.body = true
+        } else {
+            ctx.body = false
+
         }
-        ctx.body = false
     },
     //导出
     export: async (ctx) => {

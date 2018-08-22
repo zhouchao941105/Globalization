@@ -95,11 +95,13 @@ class App extends Component {
   //登录
   login() {
     axios.get('/login', {
-      params: {
-        name: this.state.username,
-        password: this.state.password
-      }
-    }).then(res => {
+      params:
+        {
+          name: this.state.username,
+          password: this.state.password
+        }
+    }
+    ).then(res => {
 
       if (res) {
 
@@ -112,8 +114,8 @@ class App extends Component {
   render() {
     return (
       this.state.needLogin ? <div>
-        <div><span>用户名：</span><Input style={{ width: 120 }} /></div>
-        <div><span>密码：</span><Input style={{ width: 120 }} /></div>
+        <div><span>用户名：</span><Input value={this.state.username} style={{ width: 120 }} onChange={(e) => this.setState({ username: e.target.value })} /></div>
+        <div><span>密码：</span><Input style={{ width: 120 }} value={this.state.password} onChange={(e) => this.setState({ password: e.target.value })} /></div>
         <Button onClick={() => this.login()}>登录</Button>
       </div> :
 
