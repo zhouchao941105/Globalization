@@ -100,16 +100,20 @@ class App extends Component {
         password: this.state.password
       }
     }).then(res => {
-      this.setState({
-        needLogin: false
-      })
+
+      if (res) {
+
+        this.setState({
+          needLogin: false
+        })
+      }
     })
   }
   render() {
     return (
       this.state.needLogin ? <div>
-        <Input />
-        <Input />
+        <div><span>用户名：</span><Input style={{ width: 120 }} /></div>
+        <div><span>密码：</span><Input style={{ width: 120 }} /></div>
         <Button onClick={() => this.login()}>登录</Button>
       </div> :
 

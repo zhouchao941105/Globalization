@@ -3,7 +3,7 @@
 */
 const trans = require('./db')
 const utils = require('./utils')
-const session = require('koa-session')
+// const session = require('koa-session')
 
 const { readFile, writeFile } = require('./fileIO');
 let option = {
@@ -75,7 +75,16 @@ let option = {
     },
     //Todo
     login: async (ctx) => {
-
+        console.log(ctx.request);
+        let { user, password } = ctx.request.query;
+        if (user == 'admin' && password == "123") {
+            ctx.session = {
+                user,
+                password
+            }
+            ctx.body = true
+        }
+        ctx.body = false
     },
     //导出
     export: async (ctx) => {
