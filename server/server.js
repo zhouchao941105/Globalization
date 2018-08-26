@@ -28,14 +28,16 @@ app.keys = ['some secret hurr'];
 app.use(session(app));
 // or if you prefer all default config, just use => app.use(session(app));
 
-// app.use(ctx => {
-//     // ignore favicon
-//     if (ctx.path === '/favicon.ico') return;
+app.use(async (ctx, next) => {
+    // ignore favicon
+    if (ctx.path === '/favicon.ico') return;
 
-//     let n = ctx.session.views || 0;
-//     ctx.session.views = ++n;
-//     ctx.body = n + ' views';
-// });
+    let n = ctx.session.views || 0;
+    ctx.session.views = ++n;
+    await next()
+    console.log(1);
+    // ctx.body = n + ' views';
+});
 var host = '127.0.0.1';
 var port = 9090;
 app.use(bodyParser())

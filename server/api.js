@@ -1,7 +1,7 @@
 /*
     这个文件用来维护api，具体该返回什么数据等等都在这里操作
 */
-const trans = require('./db')
+const { trans, user } = require('./db')
 const utils = require('./utils')
 // const session = require('koa-session')
 
@@ -77,13 +77,17 @@ let option = {
     login: async (ctx) => {
         console.log(ctx.request);
         let { name, password } = ctx.request.query;
-        if (name == 'admin' && password == "123") {
+        console.log(name, password);
+        let loginUser = await user.findOne({ username: name }).exec()
+        console.log(loginUser);
+        if (loginUser && loginUser.password === password) {
             ctx.session = {
                 name,
                 password
             }
             ctx.body = true
-        } else {
+        }
+        else {
             ctx.body = false
 
         }
