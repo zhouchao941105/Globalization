@@ -32,7 +32,7 @@ class Login extends React.Component {
     render() {
         return <div>
             <div><span>用户名：</span><Input value={this.state.username} style={{ width: 120 }} onChange={(e) => this.setState({ username: e.target.value })} /></div>
-            <div><span>密码：</span><Input style={{ width: 120 }} value={this.state.password} onChange={(e) => this.setState({ password: e.target.value })} /></div>
+            <div><span>密码：</span><Input style={{ width: 120 }} type="password" value={this.state.password} onChange={(e) => this.setState({ password: e.target.value })} /></div>
             <Button onClick={() => this.login()}>登录</Button>
         </div>
     }

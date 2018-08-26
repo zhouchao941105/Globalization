@@ -17,43 +17,47 @@ let option = {
     },
     //获取双语数据
     getData: async (ctx, next) => {
-        var query = ctx.request.body
-        var dbQuery, tempList
-        if (query.module || query.branch) {
-            if (query.module) {
-                dbQuery = {
-                    module: query.module,
-                }
-            }
-            else {
-                dbQuery = {
-                    branch: query.branch,
-                }
-            }
+        if (!ctx.session.name) {
+            ctx.response.body = { to: 'login' }
         } else {
-            if (query.state === true || query.state === false) {
-                dbQuery = {
-                    state: query.state,
-                    name: new RegExp(query.key)
+            console.log(ctx.session);
+            var query = ctx.request.body
+            var dbQuery, tempList
+            if (query.module || query.branch) {
+                if (query.module) {
+                    dbQuery = {
+                        module: query.module,
+                    }
+                }
+                else {
+                    dbQuery = {
+                        branch: query.branch,
+                    }
                 }
             } else {
-                dbQuery = {
-                    name: new RegExp(query.key)
+                if (query.state === true || query.state === false) {
+                    dbQuery = {
+                        state: query.state,
+                        name: new RegExp(query.key)
+                    }
+                } else {
+                    dbQuery = {
+                        name: new RegExp(query.key)
+                    }
                 }
+
+            }
+            let count = await trans.count(dbQuery)
+            tempList = await trans.find(dbQuery).skip(query.page.pageSize * (query.page.pageIdx - 1)).limit(query.page.pageSize).exec()
+            for (var i = 0; i < tempList.length; i++) {
+                //调试
+                var k = await trans.find({ name: tempList[i].name }).exec()
+                tempList[i].history = k.map(unit => unit.eName).filter((unit, idx, arr) => arr.indexOf(unit) === idx)
+
             }
 
+            ctx.response.body = { list: tempList, currentIdx: query.page.pageIdx, totalCount: count }
         }
-        let count = await trans.count(dbQuery)
-        tempList = await trans.find(dbQuery).skip(query.page.pageSize * (query.page.pageIdx - 1)).limit(query.page.pageSize).exec()
-        for (var i = 0; i < tempList.length; i++) {
-            //调试
-            var k = await trans.find({ name: tempList[i].name }).exec()
-            tempList[i].history = k.map(unit => unit.eName).filter((unit, idx, arr) => arr.indexOf(unit) === idx)
-
-        }
-
-        ctx.response.body = { list: tempList, currentIdx: query.page.pageIdx, totalCount: count }
-
     },
     syncData: async (ctx, next) => {
         await trans.find(function (err, list) {
@@ -75,11 +79,8 @@ let option = {
     },
     //Todo
     login: async (ctx) => {
-        console.log(ctx.request);
         let { name, password } = ctx.request.query;
-        console.log(name, password);
         let loginUser = await user.findOne({ username: name }).exec()
-        console.log(loginUser);
         if (loginUser && loginUser.password === password) {
             ctx.session = {
                 name,

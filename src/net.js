@@ -1,6 +1,11 @@
 import axios from 'axios'
 axios.interceptors.response.use(res => {
-    return res.data
+    if (res.data.to) {
+        window.location.href = res.data.to
+    } else {
+        return res.data
+
+    }
 }, err => {
     return Promise.reject(err)
 })
