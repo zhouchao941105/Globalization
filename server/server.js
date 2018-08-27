@@ -31,10 +31,12 @@ app.use(session(CONFIG, app));
 app.use(async (ctx, next) => {
     // ignore favicon
     if (ctx.path === '/favicon.ico') return;
-
-    let n = ctx.session.views || 0;
-    ctx.session.views = ++n;
     await next()
+
+    if (ctx.session.name) {
+        ctx.throw(498, 'login please')
+        // ctx.response.body = { to: 'login' }
+    }
     // ctx.body = n + ' views';
 });
 var host = '127.0.0.1';
@@ -49,9 +51,7 @@ Router.post('/syncData', api.syncData)
 Router.post('/data', api.getData)
 Router.post('/save', api.save)
 Router.post('/enable', api.enable)
-app
-    .use(Router.routes())
-    .use(Router.allowedMethods());
+app.use(Router.routes(), Router.allowedMethods())
 // app.all('*', function (req, res, next) {
 //     res.header("Access-Control-Allow-Origin", "*");
 //     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
