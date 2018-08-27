@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 import { BrowserRouter as Router, Switch, Route, Redirect } from 'react-router-dom'
 import { Input, Button, Icon, Alert } from 'antd'
 import './index.css';
-import App from './App';
+import App from './app/App';
 import registerServiceWorker from './registerServiceWorker';
 import axios from './net'
 
@@ -17,10 +17,10 @@ class Login extends React.Component {
     login() {
         axios.get('/login', {
             params:
-            {
-                name: this.state.username,
-                password: this.state.password
-            }
+                {
+                    name: this.state.username,
+                    password: this.state.password
+                }
         }
         ).then(res => {
 
@@ -37,7 +37,7 @@ class Login extends React.Component {
     render() {
         return <div className="container" >
             <div className="loginContainer" >
-                {!this.state.error ? <Alert type="error" showIcon message="密码错误"></Alert> : null}
+                {this.state.error ? <Alert type="error" showIcon message="密码错误"></Alert> : null}
                 <div className="" >
                     <div className="leftTitle" >
                         <span>用户名：</span></div><Input prefix={<Icon type="user" style={{ color: '#19da9c' }} />} value={this.state.username} style={{ width: 120 }} onChange={(e) => this.setState({ username: e.target.value })} />

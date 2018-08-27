@@ -87,7 +87,7 @@ let option = {
         }
         else {
             // ctx.body = false
-            ctx.throw(490, 'wrong password')
+            ctx.throw(401, 'wrong password')
         }
     },
     //导出

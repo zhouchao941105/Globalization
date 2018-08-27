@@ -1,6 +1,7 @@
 import React from 'react'
 import { Table, Select, Input, Icon, Button, Popconfirm } from 'antd'
-import axios from './net'
+import axios from '../net'
+import './table.css'
 class MultiTable extends React.Component {
     constructor() {
         super()
@@ -113,13 +114,13 @@ class MultiTable extends React.Component {
         return <div>
             <Table rowKey="_id" dataSource={this.state.list} columns={this.columns} onChange={src => this.props.getMore(src)} pagination={{ position: 'top', total: this.props.count }}></Table>
             <Popconfirm title="确认取消？" onConfirm={() => this.props.fresh()}>
-                <Button >取消</Button>
+                <Button className="marL15">取消</Button>
             </Popconfirm>
             <Popconfirm title="确认保存？" onConfirm={() => this.save()}>
-                <Button >保存</Button>
+                <Button className="marL15">保存</Button>
             </Popconfirm>
             <Popconfirm title="确认生效？" onConfirm={() => this.enable()}>
-                <Button>生效</Button>
+                <Button className="marL15">生效</Button>
             </Popconfirm>
         </div>
     }

@@ -33,8 +33,8 @@ app.use(async (ctx, next) => {
     if (ctx.path === '/favicon.ico') return;
     await next()
 
-    if (ctx.session.name) {
-        ctx.throw(498, 'login please')
+    if (!ctx.session.name) {
+        ctx.throw(401, 'login please')
         // ctx.response.body = { to: 'login' }
     }
     // ctx.body = n + ' views';
