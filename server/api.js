@@ -112,14 +112,22 @@ let option = {
 
         })
     },
+    //获取当前登录人
+    getCurrentUser: async (ctx) => {
+        ctx.response.body = {
+            name: ctx.session.name,
+            isAdmin: ctx.session.isAdmin
+        }
+    },
     //登录
     login: async (ctx) => {
-        let { name, password } = ctx.request.query;
+        let { name, password } = ctx.request.body;
         let loginUser = await user.findOne({ username: name }).exec()
         if (loginUser && loginUser.password === password) {
             ctx.session = {
                 name,
-                password
+                password,
+                isAdmin: loginUser.isAdmin
             }
             ctx.body = true
         }

@@ -42,7 +42,7 @@ app.use(async (ctx, next) => {
 var host = '127.0.0.1';
 var port = 9090;
 app.use(bodyParser())
-Router.get('/login', api.login)
+Router.post('/login', api.login)
 
 Router.get('/branchList', api.getBranchList)
 Router.get('/moduleList', api.getModuleList)
@@ -52,6 +52,7 @@ Router.post('/data', api.getData)
 Router.post('/getTransTotalList', api.getTransTotalList)
 Router.post('/save', api.save)
 Router.post('/enable', api.enable)
+Router.get('/getCurrentUser', api.getCurrentUser)
 app.use(Router.routes(), Router.allowedMethods())
 // app.all('*', function (req, res, next) {
 //     res.header("Access-Control-Allow-Origin", "*");
