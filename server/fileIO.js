@@ -50,4 +50,8 @@ async function readFile(_path, branch = 'master') {
 
 
 }
-module.exports = readFile
+function writeFile(_path, src) {
+    fs.openSync(_path, 'a')//a代表不存在的时候就新建
+    fs.writeFileSync(_path, src)
+}
+module.exports = { readFile, writeFile }

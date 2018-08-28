@@ -1,9 +1,11 @@
 /*
     这个文件用来维护api，具体该返回什么数据等等都在这里操作
 */
-const trans = require('./db')
+const { trans, user } = require('./db')
 const utils = require('./utils')
-const readFile = require('./fileIO');
+// const session = require('koa-session')
+
+const { readFile, writeFile } = require('./fileIO');
 let option = {
 
     getTransTotalList: async (ctx) => {
@@ -45,6 +47,7 @@ let option = {
     },
     //获取双语数据
     getData: async (ctx, next) => {
+
         var query = ctx.request.body
         var dbQuery, tempList
         if (query.module || query.branch) {
@@ -109,22 +112,73 @@ let option = {
 
         })
     },
-    //Todo
+    //登录
+    login: async (ctx) => {
+        let { name, password } = ctx.request.query;
+        let loginUser = await user.findOne({ username: name }).exec()
+        if (loginUser && loginUser.password === password) {
+            ctx.session = {
+                name,
+                password
+            }
+            ctx.body = true
+        }
+        else {
+            // ctx.body = false
+            ctx.throw(401, 'wrong password')
+        }
+    },
+    //导出
+    export: async (ctx) => {
+        let wholeList = await trans.find({ state: true }).exec()
+        let inputstrCn = ''
+        wholeList.forEach(item => {
+            inputstrCn += "'" + item.identifer + "':'" + item.name + "',\n"
+        })
+        let inputstrEn = ''
+        wholeList.forEach(item => {
+            inputstrEn += "'" + item.identifer + "':'" + item.eName + "',\n"
+        })
+        //todo根据location分组
+        let arrObj = {}
+        let locationList = [... new Set(wholeList.map(item => item.location))]
+        locationList.forEach(item => {
+            arrObj[item] = wholeList.filter(unit => unit.location == item)
+        })
+        for (let i in arrObj) {
+            writeF(true, i)
+            writeF(false, i)
+        }
+        function writeF(flg, i) {
+            let cnOutput = ''
+            arrObj[i].forEach(item => {
+                cnOutput += "'" + item.identifer + "':'" + item[flg ? 'name' : 'eName'] + "',\n"
+            })
+            let cnOut = `let $lang={
+                ${cnOutput}
+            }
+            export default $lang`
+            // console.log(`../${i}${flg ? '/lang.c.js' : '/lang.e.js'}`);
+            writeFile(`../${i}${flg ? '/lang.c.js' : '/lang.e.js'}`, cnOut)
+        }
+
+        ctx.response.body = true
+
+    },
     //生效接口（生效）
     enable: async (ctx, next) => {
         let req = ctx.request.body.list
-        for (var i = 0; i < req.length; i++) {
-            await trans.findByIdAndUpdate(req[i], { state: 1 }).exec()
-        }
+        req.forEach(async (item) => {
+            await trans.findByIdAndUpdate(item, { state: true }).exec()
+        })
         ctx.response.body = true
     },
     //保存接口（未生效）
     save: async (ctx, next) => {
         let req = ctx.request.body.list
-        for (var i = 0; i < req.length; i++) {
-            await trans.findByIdAndUpdate(req[i]._id, { eName: req[i].eName }).exec()
-
-        }
+        req.forEach(async (item) => {
+            await trans.findByIdAndUpdate(item._id, { eName: item.eName, state: false }).exec()
+        })
         ctx.response.body = true
     }
     //Todo
