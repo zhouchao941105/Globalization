@@ -3,10 +3,18 @@ body {
   padding: 0;
   font-family: sans-serif;
 }
+.container{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
 .loginContainer{
+  /* display: */
   width:200px;
-  margin:0 auto;
+  /* margin:0 auto; */
   padding-top:30px;
+  border:1px dotted #19da9c;
+  border-radius: 5px;
   text-align: center;
 }
 .leftTitle{

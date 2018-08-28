@@ -155,8 +155,7 @@ class App extends Component {
         </div>
         <div style={{ padding: '20px' }}>
           <Card
-
-            style={{ width: '100%' }}
+            style={{ width: '100%', height: 240, overflow: 'auto' }}
             cover={<img alt="1" src="http://ok0nex8hq.bkt.clouddn.com/1533051037.png" />}
           ></Card>
         </div>
