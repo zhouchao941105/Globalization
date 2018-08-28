@@ -5,13 +5,23 @@ import './App.css';
 import { Layout, Tabs, Icon, Divider, Upload, Input, Select, Pagination, Radio, Menu, Button, Card } from 'antd'
 import axios from './net'
 import MultiTable from './table';
+import TotalTrans from "./totalTrans";
 
 
 
 
 class App extends Component {
   _this = this
-  state = { list: [], totalCount: 0, branchList: [], moduleList: [], selectByBranch: true, defaultBranch: '' }
+  state = {
+    list: [],
+    totalCount: 0,
+    branchList: [],
+    moduleList: [],
+    selectByBranch: true,
+    defaultBranch: '',
+    viewType: '页面翻译',
+    totalTrans: []
+  }
   componentDidMount() {
     axios.get('/branchList').then(data => {
       this.setState({
@@ -57,6 +67,20 @@ class App extends Component {
       console.log(data);
     })
   }
+  viewTypeChange() {
+    switch (this.state.viewType) {
+      case "翻译总表":
+        // axios.post('/getTransTotalList', { pageIdx: 1, pageSize: 10 }).then(data => {
+        //   this.setState({
+        //     totalTrans: data
+        //   })
+        // })
+        break;
+
+      default:
+        break;
+    }
+  }
   render() {
     return (
       <div className="App">
@@ -69,7 +93,11 @@ class App extends Component {
         </p> */}
         {/* <div style={{margin:'0 auto'}}> */}
         <div>
-          <Radio.Group defaultValue='页面翻译'>
+          <Radio.Group defaultValue='页面翻译' onChange={(item) => {
+            console.log();
+            this.setState({ viewType: item.target.value }, this.viewTypeChange)
+          }
+          }>
             <Radio.Button value='页面翻译'>页面翻译</Radio.Button>
             <Radio.Button value='翻译总表'>翻译总表</Radio.Button>
           </Radio.Group>
@@ -92,28 +120,35 @@ class App extends Component {
             </Select>
           </Radio.Group>
         </div>
-        <div style={{ textAlign: 'left' }}>
-          <span>版本/模块:</span>
-          <span>招生</span>
-          <Button style={{ float: 'right' }}>编辑</Button>
-          <Button onClick={this.syncData.bind(this)} style={{ float: 'right', marginRight: '10px' }}>同步数据</Button>
-        </div>
-        <div style={{ padding: '20px' }}>
-          <Card
+        {
+          this.state.viewType === "页面翻译" ?
+            <div>
+              <div style={{ textAlign: 'left' }}>
+                <span>版本/模块:</span>
+                <span>招生</span>
+                <Button style={{ float: 'right' }}>编辑</Button>
+                <Button onClick={this.syncData.bind(this)} style={{ float: 'right', marginRight: '10px' }}>同步数据</Button>
+              </div>
+              <div style={{ padding: '20px' }}>
+                <Card
 
-            style={{ width: '100%' }}
-            cover={<img alt="1" src="http://ok0nex8hq.bkt.clouddn.com/1533051037.png" />}
-          ></Card>
-        </div>
-        <div>
-          <MultiTable list={this.state.list} count={this.state.totalCount} getMore={(src) => this.pageFun(src)} editable={true} ></MultiTable>
-        </div>
-        <div>
-          <Button>取消</Button>
-          <Button>保存</Button>
-          <Button>生效</Button>
+                  style={{ width: '100%' }}
+                  cover={<img alt="1" src="http://ok0nex8hq.bkt.clouddn.com/1533051037.png" />}
+                ></Card>
+              </div>
+              <div>
+                <MultiTable list={this.state.list} count={this.state.totalCount} getMore={(src) => this.pageFun(src)} editable={true} ></MultiTable>
+              </div>
+              <div>
+                <Button>取消</Button>
+                <Button>保存</Button>
+                <Button>生效</Button>
 
-        </div>
+              </div>
+            </div> :
+            <TotalTrans></TotalTrans>
+        }
+
       </div>
     );
   }

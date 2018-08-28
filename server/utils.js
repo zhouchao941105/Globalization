@@ -15,8 +15,25 @@ function getBranchList() {
     shell.exec('git fetch');
     shell.exec('git pull');
     let branches = shell.exec('git branch -a').stdout.split('\n');
+    // localStorage.setItem('currentBranch', branches.find(item => {
+    //     return item.startsWith('*');
+    // }));
     return branches.filter(i => i.trim().startsWith('remotes'))
-        .map(i => i.split('/').pop()).filter(i => i.startsWith('v')).reverse();
+        .map(i => i.split('/').pop()).filter(i => i.match(/v(\.?\d)+/g)).reverse();
+}
+
+
+function getCurrentBranch() {
+    if (!shell.which('git')) {
+        shell.echo('requires git');
+        shell.exit(1);
+        return [];
+    }
+    shell.cd(config.get('projectPath'));
+    shell.exec('git fetch');
+    shell.exec('git pull');
+    let branches = shell.exec('git branch ').stdout.split('\n');
+    return branches.find(i => i.trim().startsWith('*'));
 }
 /**
  *将文本按照每行分割成数组
@@ -47,8 +64,21 @@ function getLangPathStore() {
     return arr;
 }
 
+function deleteQuotes(str) {
+    let reg = /^['|"](.*)['|"]$/g;
+    str = str.trim();
+    let matchArr = str.trim().match(reg);
+    if (matchArr) {
+        return reg.exec(str)[1];
+    } else {
+        return str;
+    }
+}
+
 module.exports = {
     getBranchList,
     getArrayByLine,
-    getLangPathStore
+    getLangPathStore,
+    deleteQuotes,
+    getCurrentBranch
 }

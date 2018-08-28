@@ -5,6 +5,36 @@ const trans = require('./db')
 const utils = require('./utils')
 const readFile = require('./fileIO');
 let option = {
+
+    getTransTotalList: async (ctx) => {
+        let { key, pageIdx, pageSize } = ctx.request.body, dbQuery = {};
+        if (key) {
+            dbQuery = {
+                name: new RegExp(key)
+            }
+        }
+        let count,
+            piplineArr = [
+                {
+                    $group: {
+                        _id: "$identifer",
+                        total: { $sum: 1 },
+                        pathArr: { $push: "$location" },
+                        eName: { $first: "$eName" },
+                        name: { $first: "$name" },
+                    }
+                },
+
+            ],
+            tempList = await trans.aggregate(piplineArr);
+        count = tempList.length;
+        piplineArr = piplineArr.concat([
+            { $sort: { total: -1 } }
+        ]);
+        tempList = await trans.aggregate(piplineArr).skip(pageSize * (pageIdx - 1)).limit(pageSize);
+
+        ctx.response.body = { list: tempList, currentIdx: pageIdx, totalCount: count }
+    },
     //获取分支列表
     getBranchList: async (ctx, next) => {
         ctx.response.body = await utils.getBranchList(1);
@@ -54,20 +84,28 @@ let option = {
 
     },
     syncData: async (ctx, next) => {
+        let branch = utils.getCurrentBranch();
         await trans.find(function (err, list) {
             if (err) return console.log(err)
-            if (list.length === 0) {
-                let stor = utils.getLangPathStore();
-                ctx.response.body = { msg: 'langPathStore Finish' };
-                stor.forEach(async path => {
-                    await readFile(path);
-                })
-                console.log('langPathStore Finish');
-                // next();
-            } else {
-                ctx.response.body = { msg: 'langPathStore already exist' };
-                // next();
-            }
+            // if (list.length === 0) {
+            let stor = utils.getLangPathStore();
+            stor = stor.map(item => {
+                let path = item.split('/');
+                path.pop();
+                return path.join('/')
+            })
+            //去重
+            stor = [...new Set(stor)];
+            ctx.response.body = { msg: 'langPathStore Finish' };
+            stor.forEach(async path => {
+                await readFile(path, branch);
+            })
+            console.log('langPathStore Finish');
+            // next();
+            // } else {
+            //     ctx.response.body = { msg: 'langPathStore already exist' };
+            //     // next();
+            // }
 
         })
     },
