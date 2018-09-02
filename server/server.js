@@ -9,21 +9,12 @@ const session = require('koa-session')
 const staticCache = require('koa-static-cache')
 const path = require('path')
 const api = require('./api')
-const mimes = require('./mimetype')
+const { MIMES } = require('./utils')
 const fs = require('fs')
 var app = new Koa();
 app.keys = ['some secret hurr'];
 console.log(process.env.NODE_ENV);
 var prdEnv = process.env.NODE_ENV === 'production'
-// if (prdEnv) {
-// 静态缓存
-// app.use(staticCache(path.join(__dirname, '../build/index.html'), {
-//     maxAge: 365 * 24 * 60 * 60
-// }))
-// app.use(async (ctx, next) => {
-//     ctx.response.body = fs.readFileSync(path.join(__dirname, '../build/index.html'), 'binary')
-// })
-// }
 const CONFIG = {
     key: 'koa:sessuu', /** (string) cookie key (default is koa:sess) */
     /** (number || 'session') maxAge in ms (default is 1 days) */
@@ -55,7 +46,7 @@ app.use(async (ctx, next) => {
 function parseMime(url) {
     let extName = path.extname(url)
     extName = extName ? extName.slice(1) : 'unknown'
-    return mimes[extName]
+    return MIMES[extName]
 }
 var host = '127.0.0.1';
 var port = 9090;
@@ -74,7 +65,7 @@ Router.get('/getCurrentUser', api.getCurrentUser)
 //生产环境中，除了api之外还需要提供静态资源
 if (prdEnv) {
     Router.get('/*', async (ctx, next) => {
-        if (ctx.url === '/') {
+        if (parseMime(ctx.url) === 'unknown') {
             ctx.type = 'text/html'
             ctx.response.body = fs.readFileSync(path.join(__dirname, '../build/index.html'), 'binary')
         } else {
