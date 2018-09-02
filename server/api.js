@@ -188,6 +188,9 @@ let option = {
             await trans.findByIdAndUpdate(item._id, { eName: item.eName, state: false }).exec()
         })
         ctx.response.body = true
+    },
+    static: async (ctx, next) => {
+
     }
     //Todo
     //生效接口（生效）

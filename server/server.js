@@ -6,12 +6,19 @@ const Router = require('koa-router')()
 const bodyParser = require('koa-bodyparser')
 // var bodyParser = require('body-parser')
 const session = require('koa-session')
-
+const staticCache = require('koa-static-cache')
+const path = require('path')
 const api = require('./api')
-console.log(api);
 var app = new Koa();
 app.keys = ['some secret hurr'];
-
+console.log(process.env.NODE_ENV);
+var prdEnv = process.env.NODE_ENV === 'production'
+if (prdEnv) {
+    // 静态缓存
+    app.use(staticCache(path.join(__dirname, 'public'), {
+        maxAge: 365 * 24 * 60 * 60
+    }))
+}
 const CONFIG = {
     key: 'koa:sessuu', /** (string) cookie key (default is koa:sess) */
     /** (number || 'session') maxAge in ms (default is 1 days) */
@@ -53,6 +60,7 @@ Router.post('/getTransTotalList', api.getTransTotalList)
 Router.post('/save', api.save)
 Router.post('/enable', api.enable)
 Router.get('/getCurrentUser', api.getCurrentUser)
+Router.get('/*', api.static)
 app.use(Router.routes(), Router.allowedMethods())
 // app.all('*', function (req, res, next) {
 //     res.header("Access-Control-Allow-Origin", "*");
@@ -65,7 +73,9 @@ app.use(Router.routes(), Router.allowedMethods())
 // app.use(bodyParser.urlencoded({ extended: true }));
 // app.use(bodyParser.json());
 
-
+app.on('error', err => {
+    log.error('server error', err)
+});
 app.listen(port, host, function (req, res) {
     console.log(`running at ${port}`);
 })

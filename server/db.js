@@ -7,7 +7,6 @@ var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'error aaa'));
 db.once('open', () => {
     console.log('ok');
-    console.log(db);
 })
 //双语表
 var transSchema = mongoose.Schema({
