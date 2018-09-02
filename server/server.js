@@ -9,16 +9,21 @@ const session = require('koa-session')
 const staticCache = require('koa-static-cache')
 const path = require('path')
 const api = require('./api')
+const mimes = require('./mimetype')
+const fs = require('fs')
 var app = new Koa();
 app.keys = ['some secret hurr'];
 console.log(process.env.NODE_ENV);
 var prdEnv = process.env.NODE_ENV === 'production'
-if (prdEnv) {
-    // 静态缓存
-    app.use(staticCache(path.join(__dirname, 'public'), {
-        maxAge: 365 * 24 * 60 * 60
-    }))
-}
+// if (prdEnv) {
+// 静态缓存
+// app.use(staticCache(path.join(__dirname, '../build/index.html'), {
+//     maxAge: 365 * 24 * 60 * 60
+// }))
+// app.use(async (ctx, next) => {
+//     ctx.response.body = fs.readFileSync(path.join(__dirname, '../build/index.html'), 'binary')
+// })
+// }
 const CONFIG = {
     key: 'koa:sessuu', /** (string) cookie key (default is koa:sess) */
     /** (number || 'session') maxAge in ms (default is 1 days) */
@@ -46,6 +51,12 @@ app.use(async (ctx, next) => {
     }
     // ctx.body = n + ' views';
 });
+// 解析资源类型
+function parseMime(url) {
+    let extName = path.extname(url)
+    extName = extName ? extName.slice(1) : 'unknown'
+    return mimes[extName]
+}
 var host = '127.0.0.1';
 var port = 9090;
 app.use(bodyParser())
@@ -60,7 +71,19 @@ Router.post('/getTransTotalList', api.getTransTotalList)
 Router.post('/save', api.save)
 Router.post('/enable', api.enable)
 Router.get('/getCurrentUser', api.getCurrentUser)
-Router.get('/*', api.static)
+//生产环境中，除了api之外还需要提供静态资源
+if (prdEnv) {
+    Router.get('/*', async (ctx, next) => {
+        if (ctx.url === '/') {
+            ctx.type = 'text/html'
+            ctx.response.body = fs.readFileSync(path.join(__dirname, '../build/index.html'), 'binary')
+        } else {
+            ctx.type = parseMime(ctx.url)
+            ctx.response.body = fs.readFileSync(path.join(__dirname, '../build/', ctx.url))
+        }
+    })
+}
+
 app.use(Router.routes(), Router.allowedMethods())
 // app.all('*', function (req, res, next) {
 //     res.header("Access-Control-Allow-Origin", "*");
@@ -74,7 +97,7 @@ app.use(Router.routes(), Router.allowedMethods())
 // app.use(bodyParser.json());
 
 app.on('error', err => {
-    log.error('server error', err)
+    console.error('server error', err)
 });
 app.listen(port, host, function (req, res) {
     console.log(`running at ${port}`);
