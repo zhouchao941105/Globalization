@@ -5,7 +5,9 @@ const Koa = require('koa');
 const Router = require('koa-router')()
 const bodyParser = require('koa-bodyparser')
 const session = require('koa-session')
-const staticCache = require('koa-static-cache')
+// const staticCache = require('koa-static-cache')
+//
+// const static = require('koa-static')
 const path = require('path')
 const api = require('./api')
 const { MIMES } = require('./utils')
@@ -74,6 +76,7 @@ if (prdEnv) {
             ctx.response.body = fs.readFileSync(path.join(__dirname, '../build/', ctx.url))
         }
     })
+    // app.use(static('.'))
 }
 
 app.use(Router.routes(), Router.allowedMethods())
