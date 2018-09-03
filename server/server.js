@@ -4,7 +4,6 @@
 const Koa = require('koa');
 const Router = require('koa-router')()
 const bodyParser = require('koa-bodyparser')
-// var bodyParser = require('body-parser')
 const session = require('koa-session')
 const staticCache = require('koa-static-cache')
 const path = require('path')
@@ -13,8 +12,6 @@ const { MIMES } = require('./utils')
 const fs = require('fs')
 var app = new Koa();
 app.keys = ['some secret hurr'];
-console.log(process.env.NODE_ENV);
-var prdEnv = process.env.NODE_ENV === 'production'
 const CONFIG = {
     key: 'koa:sessuu', /** (string) cookie key (default is koa:sess) */
     /** (number || 'session') maxAge in ms (default is 1 days) */
@@ -33,21 +30,16 @@ app.use(session(CONFIG, app));
 
 app.use(async (ctx, next) => {
     // ignore favicon
-    if (ctx.path === '/favicon.ico') return;
+    // if (ctx.path === '/favicon.ico') return;
     await next()
-
+    //鉴权
     if (!ctx.session.name) {
         ctx.throw(401, 'login please')
         // ctx.response.body = { to: 'login' }
     }
     // ctx.body = n + ' views';
 });
-// 解析资源类型
-function parseMime(url) {
-    let extName = path.extname(url)
-    extName = extName ? extName.slice(1) : 'unknown'
-    return MIMES[extName]
-}
+
 var host = '127.0.0.1';
 var port = 9090;
 app.use(bodyParser())
@@ -62,10 +54,19 @@ Router.post('/getTransTotalList', api.getTransTotalList)
 Router.post('/save', api.save)
 Router.post('/enable', api.enable)
 Router.get('/getCurrentUser', api.getCurrentUser)
+// 解析资源类型
+function parseMime(url) {
+    let extName = path.extname(url)
+    extName = extName ? extName.slice(1) : 'unknown'
+    return MIMES[extName]
+}
+var prdEnv = process.env.NODE_ENV === 'production'
 //生产环境中，除了api之外还需要提供静态资源
 if (prdEnv) {
     Router.get('/*', async (ctx, next) => {
+
         if (parseMime(ctx.url) === 'unknown') {
+            // if (ctx.url === '/') {
             ctx.type = 'text/html'
             ctx.response.body = fs.readFileSync(path.join(__dirname, '../build/index.html'), 'binary')
         } else {

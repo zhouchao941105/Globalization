@@ -3,7 +3,6 @@
 */
 const { trans, user } = require('./db')
 const utils = require('./utils')
-// const session = require('koa-session')
 
 const { readFile, writeFile } = require('./fileIO');
 let option = {
@@ -188,31 +187,6 @@ let option = {
             await trans.findByIdAndUpdate(item._id, { eName: item.eName, state: false }).exec()
         })
         ctx.response.body = true
-    },
-    static: async (ctx, next) => {
-
     }
-    //Todo
-    //生效接口（生效）
-    // enable: async (ctx, next) => {
-    //     let req = ctx.request.body.list
-    //     req.map(item => {
-    //         await trans.findByIdAndUpdate(item, { state: 1 }).exec()
-    //     })
-    //     ctx.response.body = true
-    // },
-    // //保存接口（未生效）
-    // save: async (ctx, next) => {
-    //     let req = ctx.request.body.list
-    //     req.map(item => {
-    //         await trans.findByIdAndUpdate(item._id, { eName: item.eName }).exec()
-    //     })
-    //     ctx.response.body = true
-    // }
-    //获取同中文名的情况下，之前的翻译
-    //
-    //
-    //
-    //
 }
 module.exports = option
