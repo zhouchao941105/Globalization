@@ -65,6 +65,7 @@ function parseMime(url) {
 var prdEnv = process.env.NODE_ENV === 'production'
 //生产环境中，除了api之外还需要提供静态资源
 if (prdEnv) {
+    //这里下面的两个读文件的操作，貌似可以直接用ctx.sendFile()代替
     Router.get('/*', async (ctx, next) => {
 
         if (parseMime(ctx.url) === 'unknown') {
