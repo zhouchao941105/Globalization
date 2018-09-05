@@ -1,60 +1,85 @@
 import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
-import { Layout, Tabs, Icon, Divider, Upload, Table, Input, Select, Pagination, Radio, Menu, Button, Card } from 'antd'
-import axios from 'axios'
-// import { Module } from 'module';
+// eslint-disable-next-line
+import { Layout, Tabs, Icon, Divider, Upload, Input, Select, Pagination, Radio, Menu, Button, Card } from 'antd'
+import axios from './net'
+import MultiTable from './table';
+import TotalTrans from "./totalTrans";
 
-const columns = [{
-  title: '中文名',
-  dataIndex: 'name',
-  key: 'name',
-  width: 300
-  // render: text => <a href="javascript:;">{text}</a>,
-}, {
-  title: '英文名',
-  dataIndex: 'eName',
-  key: 'eName',
-  width: 300
 
-}, {
-  title: '位置',
-  dataIndex: 'module',
-  key: 'module',
-  width: 100
-
-}, {
-  title: '生效状态',
-  dataIndex: 'status',
-  key: 'status',
-  width: 100
-
-}];
 
 
 class App extends Component {
-
-  state = { list: [], branchList: [], moduleList: [], selectByBranch: true }
+  _this = this
+  state = {
+    list: [],
+    totalCount: 0,
+    branchList: [],
+    moduleList: [],
+    selectByBranch: true,
+    defaultBranch: '',
+    viewType: '页面翻译',
+    totalTrans: []
+  }
   componentDidMount() {
     axios.get('/branchList').then(data => {
       this.setState({
-        branchList: data.data
+        branchList: data,
+        defaultBranch: data[0]
+      }, () => {
+        this.searchParam.branch = this.state.defaultBranch;
       })
+
+    }).then(() => {
+      this.getData(this.searchParam)
     })
     axios.get('/moduleList').then(data => {
       this.setState({
-        moduleList: data.data
+        moduleList: data
       })
     })
-    this.getData = (branch, module, key, state) => {
-      axios.get('/data', { params: { branch, module, key } }).then(data => {
+    this.getData = ({ branch, module, key, page = { pageIdx: 1, pageSize: 10 } }) => {
+      axios.post('/data', { branch, module, key, page }).then(data => {
         this.setState({
-          list: data.data
+          list: data.list,
+          totalCount: data.totalCount
         })
       })
     }
+    this.searchParam = {
+      branch: 'v1.0',
+      module: '',
+      key: '',
+      page: {
+        pageIdx: 1,
+        pageSize: 10
+      }
+    }
 
-    this.getData('v1.0', '', '')
+  }
+  pageFun(page) {
+    this.searchParam.page.pageIdx = page.current
+    this.getData(this.searchParam)
+  }
+  syncData() {
+    axios.post('/syncData', { branch: this.searchParam.branch }).then(data => {
+      console.log(data);
+    })
+  }
+  viewTypeChange() {
+    switch (this.state.viewType) {
+      case "翻译总表":
+        // axios.post('/getTransTotalList', { pageIdx: 1, pageSize: 10 }).then(data => {
+        //   this.setState({
+        //     totalTrans: data
+        //   })
+        // })
+        break;
+
+      default:
+        break;
+    }
   }
   render() {
     return (
@@ -68,7 +93,11 @@ class App extends Component {
         </p> */}
         {/* <div style={{margin:'0 auto'}}> */}
         <div>
-          <Radio.Group defaultValue='页面翻译'>
+          <Radio.Group defaultValue='页面翻译' onChange={(item) => {
+            console.log();
+            this.setState({ viewType: item.target.value }, this.viewTypeChange)
+          }
+          }>
             <Radio.Button value='页面翻译'>页面翻译</Radio.Button>
             <Radio.Button value='翻译总表'>翻译总表</Radio.Button>
           </Radio.Group>
@@ -77,36 +106,49 @@ class App extends Component {
           <span>筛选：</span>
           <Radio.Group defaultValue="1" onChange={() => this.setState({ selectByBranch: !this.state.selectByBranch })}>
             <Radio value="1">按版本</Radio>
-            <Select defaultValue='v1.0' style={{ width: 120 }} onSelect={(val) => this.getData(val, '', '')} disabled={!this.state.selectByBranch}>
-              {this.state.branchList.map(item => (<Select.Option value={item}>{item}</Select.Option>))}
+            <Select
+              defaultValue={this.state.defaultBranch}
+              style={{ width: 120 }}
+              onChange={(val) => { this.searchParam.branch = val; this.getData(this.searchParam) }}
+              disabled={!this.state.selectByBranch}>
+              {this.state.branchList.map(item => (<Select.Option key={item} value={item}>{item}</Select.Option>))}
             </Select>
             <Radio value="2">按模块</Radio>
             {/* <Dropdown overlay={ModuleList} trigger={['click']}> */}
-            <Select defaultValue='首页' style={{ width: 120 }} onSelect={(val) => this.getData('', val, '')} disabled={this.state.selectByBranch}>
-              {this.state.moduleList.map(item => (<Select.Option value={item}>{item}</Select.Option>))}
+            <Select defaultValue='首页' style={{ width: 120 }} onSelect={(val) => { this.searchParam.module = val; this.getData(this.searchParam) }} disabled={this.state.selectByBranch}>
+              {this.state.moduleList.map(item => (<Select.Option key={item} value={item}>{item}</Select.Option>))}
             </Select>
           </Radio.Group>
         </div>
-        <div style={{ textAlign: 'left' }}>
-          <span>版本/模块:</span>
-          <span>招生</span>
-          <Button style={{ float: 'right' }}>编辑</Button>
-        </div>
-        <div>
-          <Card
-            style={{ width: 320 }}
-            cover={<img alt="example" src="https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png" />}
-          ></Card>
-        </div>
-        <div>
-          <Table rowKey="_id" dataSource={this.state.list} columns={columns} pagination={{ position: 'top' }}></Table>
-        </div>
-        <div>
-          <Button>取消</Button>
-          <Button>保存</Button>
-          <Button>生效</Button>
+        {
+          this.state.viewType === "页面翻译" ?
+            <div>
+              <div style={{ textAlign: 'left' }}>
+                <span>版本/模块:</span>
+                <span>招生</span>
+                <Button style={{ float: 'right' }}>编辑</Button>
+                <Button onClick={this.syncData.bind(this)} style={{ float: 'right', marginRight: '10px' }}>同步数据</Button>
+              </div>
+              <div style={{ padding: '20px' }}>
+                <Card
 
-        </div>
+                  style={{ width: '100%' }}
+                  cover={<img alt="1" src="http://ok0nex8hq.bkt.clouddn.com/1533051037.png" />}
+                ></Card>
+              </div>
+              <div>
+                <MultiTable list={this.state.list} count={this.state.totalCount} getMore={(src) => this.pageFun(src)} editable={true} ></MultiTable>
+              </div>
+              <div>
+                <Button>取消</Button>
+                <Button>保存</Button>
+                <Button>生效</Button>
+
+              </div>
+            </div> :
+            <TotalTrans></TotalTrans>
+        }
+
       </div>
     );
   }

@@ -1,148 +1,100 @@
-var express = require('express');
-var mongoose = require('mongoose');
-var bodyParser = require('body-parser')
-var fs = require('fs')
-var path = require('path')
-mongoose.connect('mongodb://localhost')
-var db = mongoose.connection;
-db.on('error', console.error.bind(console, 'error aaa'));
-db.once('open', () => {
-    console.log('ok');
-})
-var transSchema = mongoose.Schema({
-    identifer: String,
-    name: String,
-    eName: String,
-    module: String,
-    branch: String,
-    state: Boolean,
-    location: String
-})
-var trans = mongoose.model('Trans', transSchema);
-trans.find(function (err, list) {
-    if (err) return console.log(err)
-    if (list.length === 0) {
-        // instance.save(function (err, ins) {
-        //     if (err) return console.log(err);
-        // })
-        // trans.create({
-        //     identifer: '系统首页',
-        //     name: '首页',
-        //     eName: 'Homepage',
-        //     module: 'home',
-        //     branch: '1.0',
-        //     state: true
-        // })
-        readFile()
+/*
+    这个文件是启动HTTP服务，设置路由，具体操作由api文件维护
+*/
+const Koa = require('koa');
+const Router = require('koa-router')()
+const bodyParser = require('koa-bodyparser')
+const session = require('koa-session')
+// const staticCache = require('koa-static-cache')
+//
+// const static = require('koa-static')
+const path = require('path')
+const api = require('./api')
+const { MIMES } = require('./utils')
+const fs = require('fs')
+var app = new Koa();
+app.keys = ['some secret hurr'];
+const CONFIG = {
+    key: 'koa:sessuu', /** (string) cookie key (default is koa:sess) */
+    /** (number || 'session') maxAge in ms (default is 1 days) */
+    /** 'session' will result in a cookie that expires when session/browser is closed */
+    /** Warning: If a session cookie is stolen, this cookie will never expire */
+    maxAge: 86400000,
+    overwrite: true, /** (boolean) can overwrite or not (default true) */
+    httpOnly: true, /** (boolean) httpOnly or not (default true) */
+    signed: true, /** (boolean) signed or not (default true) */
+    rolling: false, /** (boolean) Force a session identifier cookie to be set on every response. The expiration is reset to the original maxAge, resetting the expiration countdown. (default is false) */
+    renew: false, /** (boolean) renew session when session is nearly expired, so we can always keep user logged in. (default is false)*/
+};
+
+app.use(session(CONFIG, app));
+// or if you prefer all default config, just use => app.use(session(app));
+
+app.use(async (ctx, next) => {
+    // ignore favicon
+    // if (ctx.path === '/favicon.ico') return;
+    await next()
+    //鉴权
+    if (!ctx.session.name) {
+        ctx.throw(401, 'login please')
+        // ctx.response.body = { to: 'login' }
     }
+    // ctx.body = n + ' views';
+});
 
-})
-// var json = require(path.join(__dirname,'../../docs/lang.cn.js'))
-// console.log(jaa['导航名称']);
-function readFile() {
-    var cnList = []
-    var enList = []
-    var cnRes = fs.readFileSync(path.join(__dirname, '../../Docs/lang.cn.js'))
-    cnList = cnList.concat(cnRes.toString('utf-8', 13, cnRes.length - 28).split(',\r'))
-
-
-    var enRes = fs.readFileSync(path.join(__dirname, '../../Docs/lang.en.js'))
-    enList = enList.concat(enRes.toString('utf-8', 13, enRes.length - 28).split(',\r'))
-    enList.forEach((item, idx) => {
-        var identifer = item.split(':')[0]
-        var eName = item.split(':')[1]
-        if (!enList[idx]) {
-            debugger
-        }
-        var name = cnList[idx].split(':')[1]
-        if (identifer == cnList[idx].split(':')[0]) {
-            trans.create({
-                identifer: identifer.trim(),
-                name,
-                eName,
-                location: 'Docs',
-                module: 'home',
-                branch: 'v1.0'
-            })
-        } else if (cnList.some(unit => unit.split(':')[0] == identifer)) {
-            trans.create({
-                identifer: identifer.trim(),
-                name: cnList.find(unit => unit.split(':')[0] == identifer).split(':')[1],
-                eName,
-                location: 'Docs',
-                module: 'home',
-                branch: 'v1.0'
-            })
-        }
-
-    })
-}
-var proxy = require('express-http-proxy');
-
-var app = express();
 var host = '127.0.0.1';
 var port = 9090;
+app.use(bodyParser())
+Router.post('/login', api.login)
 
-app.all('*', function (req, res, next) {
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-    res.header("Access-Control-Allow-Methods", "PUT,POST,GET,DELETE,OPTIONS");
-    res.header("X-Powered-By", ' 3.2.1')
-    res.header("Content-Type", "application/json;charset=utf-8");
-    next();
-});
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json());
-app.get('/branchList', (req, res) => {
-    trans.distinct('branch').exec((err, data) => {
-        res.send(data)
-    })
-})
-app.get('/moduleList', (req, res) => {
-    trans.distinct('module').exec((err, data) => {
-        res.send(data)
-    })
-})
-app.get('/data', function (req, res) {
-    var query = req.query
-    var dbQuery
-    if (query.module || query.branch) {
-        if (query.module) {
-            dbQuery = {
-                module: query.module,
-            }
-        }
-        else {
-            dbQuery = {
-                branch: query.branch,
-            }
-        }
-    } else {
-        if (query.state === true || query.state === false) {
-            dbQuery = {
-                state: query.state,
-                name: new RegExp(query.key)
-            }
+Router.get('/branchList', api.getBranchList)
+Router.get('/moduleList', api.getModuleList)
+Router.get('/export', api.export)
+Router.post('/syncData', api.syncData)
+Router.post('/data', api.getData)
+Router.post('/getTransTotalList', api.getTransTotalList)
+Router.post('/save', api.save)
+Router.post('/enable', api.enable)
+Router.get('/getCurrentUser', api.getCurrentUser)
+// 解析资源类型
+function parseMime(url) {
+    let extName = path.extname(url)
+    extName = extName ? extName.slice(1) : 'unknown'
+    return MIMES[extName]
+}
+var prdEnv = process.env.NODE_ENV === 'production'
+//生产环境中，除了api之外还需要提供静态资源
+if (prdEnv) {
+    //这里下面的两个读文件的操作，貌似可以直接用ctx.sendFile()代替
+    Router.get('/*', async (ctx, next) => {
+
+        if (parseMime(ctx.url) === 'unknown') {
+            // if (ctx.url === '/') {
+            ctx.type = 'text/html'
+            ctx.response.body = fs.readFileSync(path.join(__dirname, '../build/index.html'), 'binary')
         } else {
-            dbQuery = {
-                name: new RegExp(query.key)
-            }
+            ctx.type = parseMime(ctx.url)
+            ctx.response.body = fs.readFileSync(path.join(__dirname, '../build/', ctx.url))
         }
-
-    }
-    trans.find(dbQuery, function (err, list) {
-        if (err) return console.log(err);
-        res.send(list)
     })
-})
-//Todo
-//生效接口（生效）
-//保存接口（未生效）
-//获取同中文名的情况下，之前的翻译
-//
-//
-//
-//
+    // app.use(static('.'))
+}
+
+app.use(Router.routes(), Router.allowedMethods())
+// app.all('*', function (req, res, next) {
+//     res.header("Access-Control-Allow-Origin", "*");
+//     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+//     res.header("Access-Control-Allow-Methods", "PUT,POST,GET,DELETE,OPTIONS");
+//     res.header("X-Powered-By", ' 3.2.1')
+//     res.header("Content-Type", "application/json;charset=utf-8");
+//     next();
+// });
+// app.use(bodyParser.urlencoded({ extended: true }));
+// app.use(bodyParser.json());
+
+app.on('error', err => {
+    console.error('server error', err)
+});
 app.listen(port, host, function (req, res) {
     console.log(`running at ${port}`);
 })
