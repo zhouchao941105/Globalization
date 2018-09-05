@@ -33,7 +33,7 @@
   "scripts": {
     "start": "npm run server | react-app-rewired start",
     "server": "nodemon server/server.js",
-    "startOnly": "react-app-rewired start",
+    "startOnly": "HTTPS=true  react-app-rewired start",
     "build": "react-app-rewired build",
     "serveProd": "NODE_ENV=production node server/server.js ",
     "test": "react-app-rewired test --env=jsdom",
